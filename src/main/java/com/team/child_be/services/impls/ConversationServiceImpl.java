@@ -203,34 +203,49 @@ public class ConversationServiceImpl implements ConversationService{
         List<Chatlog> chatlogs = chatlogRepository.findByConversation(conversation);
 
         for (Chatlog chatlog : chatlogs) {
-            chatlog.setSeen(true);
-            chatlogRepository.save(chatlog);
+            if (chatlog.getReceiver().getId().equals(user.getId()) && !chatlog.isSeen()) {
+                chatlog.setSeen(true);
+                chatlogRepository.save(chatlog);
+            }
         }
 
-        return chatlogs.stream()
-            .map(chatlog -> convertToChatlogResponse(chatlog))
+        List<Chatlog> sortedChatlogs = chatlogs.stream()
+            .sorted(Comparator.comparing(Chatlog::getCreatedAt))
+            .toList();
+
+        return sortedChatlogs.stream()
+            .map(chatlog -> convertToChatlogResponse(chatlog, user))
             .toList();
     }
 
-    private ChatlogResponse convertToChatlogResponse(Chatlog chatlog) {
-        return ChatlogResponse.builder()
-            .id(chatlog.getId())
-            .sender(UserForChatResponse.builder()
-                .id(chatlog.getSender().getId())
-                .name(chatlog.getSender().getName())
-                .avatarCode(chatlog.getSender().getAvatarCode())
-                .build()
-            )
-            .receiver(UserForChatResponse.builder()
-                .id(chatlog.getReceiver().getId())
-                .name(chatlog.getReceiver().getName())
-                .avatarCode(chatlog.getReceiver().getAvatarCode())
-                .build()
-            )
-            .message(chatlog.getMessage() != null ? chatlog.getMessage() : "")
-            .type(chatlog.getType())
-            .seen(chatlog.isSeen())
-            .build();
+    private ChatlogResponse convertToChatlogResponse(Chatlog chatlog, User user) {
+        if (chatlog.getSender().getId() == user.getId()) {
+            return ChatlogResponse.builder()
+                .id(chatlog.getId())
+                .sender(UserForChatResponse.builder()
+                    .id(chatlog.getSender().getId())
+                    .name(chatlog.getSender().getName())
+                    .avatarCode(chatlog.getSender().getAvatarCode())
+                    .build()
+                )
+                .message(chatlog.getMessage() != null ? chatlog.getMessage() : "")
+                .type(chatlog.getType())
+                .seen(chatlog.isSeen())
+                .build();
+        } else {
+            return ChatlogResponse.builder()
+                .id(chatlog.getId())
+                .receiver(UserForChatResponse.builder()
+                    .id(chatlog.getSender().getId())
+                    .name(chatlog.getSender().getName())
+                    .avatarCode(chatlog.getSender().getAvatarCode())
+                    .build()
+                )
+                .message(chatlog.getMessage() != null ? chatlog.getMessage() : "")
+                .type(chatlog.getType())
+                .seen(chatlog.isSeen())
+                .build();
+        }
     }
 
     @Override
