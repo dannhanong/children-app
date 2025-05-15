@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
@@ -23,10 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByCreatedAtBeforeAndEnabled(LocalDateTime twoDaysAgo, boolean enabled);
 
-    @Query("SELECT u FROM User u WHERE CONCAT(u.name, ' ', u.username) LIKE %:keyword%")
+    @Query("SELECT u FROM User u WHERE CONCAT(u.name, ' ', u.username, ' ', u.phoneNumber) LIKE %:keyword%")
     Page<User> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("SELECT u FROM User u WHERE CONCAT(u.name, ' ', u.username) LIKE %:keyword%")
+    @Query("SELECT u FROM User u WHERE CONCAT(u.name, ' ', u.username, ' ', u.phoneNumber) LIKE %:keyword%")
     List<User> lSearchByKeyword(@Param("keyword") String keyword);
 
     boolean existsByPhoneNumberAndUsernameNot(String phoneNumber, String username);

@@ -1,4 +1,4 @@
-package com.team.child_be.events.dtos;
+package com.team.child_be.dtos.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

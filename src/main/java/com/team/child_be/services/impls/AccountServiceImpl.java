@@ -20,6 +20,7 @@ import com.team.child_be.repositories.RoleRepository;
 import com.team.child_be.repositories.UserRepository;
 import com.team.child_be.security.jwt.JwtService;
 import com.team.child_be.services.AccountService;
+import com.team.child_be.services.ConversationService;
 import com.team.child_be.services.UserService;
 
 import java.time.LocalDateTime;
@@ -42,6 +43,8 @@ public class AccountServiceImpl implements AccountService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private ConversationService conversationService;
 
     @Override
     public User signup(SignupRequest signupRequest) {
@@ -96,6 +99,9 @@ public class AccountServiceImpl implements AccountService {
             .build();
 
         User savedUser = userRepository.save(user);
+
+        conversationService.createDefaultConversation(savedUser.getId());
+
         return userRepository.save(savedUser);
     }
 

@@ -20,7 +20,7 @@ import com.team.child_be.services.FCMService;
 
 import lombok.extern.slf4j.Slf4j;
 
-// @Service
+@Service
 @Slf4j
 public class FCMServiceImpl implements FCMService{
     @Autowired
