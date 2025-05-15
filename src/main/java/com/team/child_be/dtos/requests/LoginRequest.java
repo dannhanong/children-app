@@ -6,5 +6,6 @@ import lombok.*;
 public record LoginRequest(
     String username,
     String password,
+    String accessCode,
     boolean rememberMe
 ) {}

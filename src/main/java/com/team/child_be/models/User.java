@@ -39,6 +39,8 @@ public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    Long parentId;
+
     @NotBlank(message = "Tên hiển thị không được để trống")
     // @Min(value = 3, message = "Tên hiển thị phải có ít nhất 3 ký tự")
     String name;
@@ -53,6 +55,7 @@ public class User {
     boolean enabled;
 
     String verificationCode;
+    String accessCode;
 
     String resetPasswordToken;
 
