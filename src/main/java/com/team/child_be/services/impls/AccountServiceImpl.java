@@ -76,7 +76,7 @@ public class AccountServiceImpl implements AccountService {
                     roles.add(parentRole);
                     roles.add(parentChild);
                     break;
-                case "staff":
+                case "child":
                     Role childRole = roleRepository.findByName(RoleName.CHILD);
                     roles.add(childRole);
                     break;
@@ -120,6 +120,23 @@ public class AccountServiceImpl implements AccountService {
     public LoginResponse login(LoginRequest loginRequest) {
         LoginResponse tokens = new LoginResponse();
         try {
+            User user = userRepository.findByUsername(loginRequest.username());
+            if (user == null) {
+                throw new RuntimeException("Tên đăng nhập hoặc mật khẩu không chính xác");
+            }
+            boolean isOnlyChild = user.getRoles().size() == 1 &&
+                    user.getRoles().stream()
+                            .anyMatch(role -> role.getName().equals(RoleName.CHILD));
+            if (isOnlyChild) {
+                if (loginRequest.accessCode() == null || loginRequest.accessCode().isEmpty()) {
+                    throw new RuntimeException("Trẻ em cần cung cấp mã truy cập để đăng nhập");
+                }
+
+                if (!user.getAccessCode().equals(loginRequest.accessCode())) {
+                    throw new RuntimeException("Mã truy cập không chính xác");
+                }
+            }
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
 
@@ -128,18 +145,21 @@ public class AccountServiceImpl implements AccountService {
             }
 
             if (authentication.isAuthenticated()) {
-                final String accessToken = jwtService.generateToken(loginRequest.username(), authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
-                final String refreshToken = jwtService.generateRefreshToken(loginRequest.username(), authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+                final String accessToken = jwtService.generateToken(loginRequest.username(),
+                        authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+                final String refreshToken = jwtService.generateRefreshToken(loginRequest.username(),
+                        authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 
                 tokens = LoginResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                         .userProfile(userService.getProfile(loginRequest.username()))
-                        .build();               
+                        .build();
             }
         } catch (AuthenticationException e) {
             throw new RuntimeException("Tên đăng nhập hoặc mật khẩu không chính xác");
-        }    
+        }
+
         return tokens;
     }
 }
