@@ -18,9 +18,16 @@ spring:
     servlet:
       encoding:
         charset: UTF-8
+  
+  ai:
+    openai:
+      api-key: ${OPEN_AI_KEY}
+      chat:
+        options:
+          model: ${OPENAI_MODEL}
 
 oauth2:
   identity:
-    client-id: ${CLIENT_ID}
-    client-secret: ${CLIENT_SECRET}
-    redirect-uri: ${REDIRECT_URI}
+    client-id: ${CLIENT_ID:1}
+    client-secret: ${CLIENT_SECRET:2}
+    redirect-uri: ${REDIRECT_URI:3}

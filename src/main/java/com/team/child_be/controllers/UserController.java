@@ -1,13 +1,19 @@
 package com.team.child_be.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserProfile;
+import com.team.child_be.models.User;
 import com.team.child_be.security.jwt.JwtService;
 import com.team.child_be.services.UserService;
 
@@ -29,6 +35,21 @@ public class UserController {
             return ResponseEntity.ok(userProfile);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi lấy thông tin người dùng: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<?> searchByKeywork(@RequestParam(defaultValue = "") String keyword,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int size,
+                                                    @RequestParam(defaultValue = "id") String sortBy,
+                                                    @RequestParam(defaultValue = "desc") String order) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sortBy));
+            Page<User> users = userService.searchByKeyword(keyword, pageable);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi tìm kiếm người dùng: " + e.getMessage()));
         }
     }
 }

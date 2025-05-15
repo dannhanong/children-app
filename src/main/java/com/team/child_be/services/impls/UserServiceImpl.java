@@ -7,10 +7,10 @@ import com.team.child_be.dtos.requests.ExchangeTokenRequest;
 import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.ResetPasswordRequest;
 import com.team.child_be.dtos.requests.UpdateProfileRequest;
+import com.team.child_be.dtos.responses.NotificationEvent;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserAllInfo;
 import com.team.child_be.dtos.responses.UserProfile;
-import com.team.child_be.events.dtos.NotificationEvent;
 import com.team.child_be.http_clients.GoogleOauth2IdentityClient;
 import com.team.child_be.http_clients.GoogleOauth2UserClient;
 import com.team.child_be.models.FileUpload;
@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,8 +50,6 @@ public class UserServiceImpl implements UserService {
     private RoleRepository roleRepository;
     @Autowired
     private FileUploadService fileUploadService;
-    @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
     @Autowired
     private GoogleOauth2IdentityClient googleOauth2IdentityClient;
     @Autowired
@@ -139,7 +136,7 @@ public class UserServiceImpl implements UserService {
                 .subject("Quên mật khẩu")
                 .body(user.getResetPasswordToken())
                 .build();
-        kafkaTemplate.send("hdkt-forgot-password", notificationEvent);
+        // kafkaTemplate.send("hdkt-forgot-password", notificationEvent);
         return new ResponseMessage(200, "Gửi mã xác nhận thành công");
     }
 
@@ -204,7 +201,7 @@ public class UserServiceImpl implements UserService {
                     .subject("Chào mừng bạn đến với trang idai.vn")
                     .body(savedUser.getVerificationCode())
                     .build();
-            kafkaTemplate.send("hdkt-notification-oauth2", notificationEvent);
+            // kafkaTemplate.send("hdkt-notification-oauth2", notificationEvent);
         }
 
         return user;
@@ -223,7 +220,7 @@ public class UserServiceImpl implements UserService {
                 .subject("Thông báo về yêu cầu xóa tài khoản")
                 .body("Tài khoản của bạn đã bị xóa")
                 .build();
-        kafkaTemplate.send("hdkt-delete-account-notification", notificationEvent);
+                
         return new ResponseMessage(200, "Xóa tài khoản thành công, vui lòng kiểm tra email để xác nhận");
     }
 
@@ -285,8 +282,6 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(currentUser);
-
-        kafkaTemplate.send("hdkt_delete_cache_profile", username);
 
         return ResponseMessage.builder()
                 .status(200)

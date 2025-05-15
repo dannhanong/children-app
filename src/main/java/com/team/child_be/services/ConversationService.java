@@ -1,0 +1,15 @@
+package com.team.child_be.services;
+
+import java.util.List;
+
+import com.team.child_be.dtos.requests.SendMessageRequest;
+import com.team.child_be.dtos.responses.ChatlogResponse;
+import com.team.child_be.dtos.responses.ConversationResponse;
+import com.team.child_be.dtos.responses.ResponseMessage;
+
+public interface ConversationService {
+    List<ConversationResponse> getMyConversations(String username);
+    ResponseMessage sendMessage(String username, SendMessageRequest sendMessageRequest);
+    List<ChatlogResponse> geChatlogs(String username, Long conversationId);
+    void createDefaultConversation(Long userId);
+}

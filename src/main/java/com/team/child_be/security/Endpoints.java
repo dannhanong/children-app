@@ -6,7 +6,8 @@ public class Endpoints {
     public static class Public {
         public static final String[] GET = {
             API_PREFIX + "/auth/verify",
-            API_PREFIX + "/auth/validate"
+            API_PREFIX + "/auth/validate",
+            API_PREFIX + "/files/preview/**",
         };
 
         public static final String[] POST = {
