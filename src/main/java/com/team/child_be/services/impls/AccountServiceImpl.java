@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public User signup(SignupRequest signupRequest) {
-        if (userRepository.existsByUsername(signupRequest.username())) {
+        if (userRepository.existsByUsername(signupRequest.email())) {
             throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
         if (userRepository.existsByPhoneNumber(signupRequest.phoneNumber())) {
@@ -79,7 +79,7 @@ public class AccountServiceImpl implements AccountService {
                     roles.add(parentRole);
                     roles.add(parentChild);
                     break;
-                case "staff":
+                case "child":
                     Role childRole = roleRepository.findByName(RoleName.CHILD);
                     roles.add(childRole);
                     break;
@@ -88,7 +88,7 @@ public class AccountServiceImpl implements AccountService {
 
         User user = User.builder()
             .name(signupRequest.name())
-            .username(signupRequest.username())
+            .username(signupRequest.email())
             .phoneNumber(signupRequest.phoneNumber())
             .password(passwordEncoder.encode(signupRequest.password()))
             .roles(roles)
@@ -126,26 +126,46 @@ public class AccountServiceImpl implements AccountService {
     public LoginResponse login(LoginRequest loginRequest) {
         LoginResponse tokens = new LoginResponse();
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+            User user = userRepository.findByUsername(loginRequest.email());
+            if (user == null) {
+                throw new RuntimeException("Tên đăng nhập hoặc mật khẩu không chính xác");
+            }
+            boolean isOnlyChild = user.getRoles().size() == 1 &&
+                    user.getRoles().stream()
+                            .anyMatch(role -> role.getName().equals(RoleName.CHILD));
+            if (isOnlyChild) {
+                if (loginRequest.accessCode() == null || loginRequest.accessCode().isEmpty()) {
+                    throw new RuntimeException("Trẻ em cần cung cấp mã truy cập để đăng nhập");
+                }
 
-            if (!userService.isEnableUser(loginRequest.username())) {
+                if (!user.getAccessCode().equals(loginRequest.accessCode())) {
+                    throw new RuntimeException("Mã truy cập không chính xác");
+                }
+            }
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
+
+            if (!userService.isEnableUser(loginRequest.email())) {
                 throw new RuntimeException("Tài khoản chưa được xác minh hoặc đã bị khóa");
             }
 
             if (authentication.isAuthenticated()) {
-                final String accessToken = jwtService.generateToken(loginRequest.username(), authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
-                final String refreshToken = jwtService.generateRefreshToken(loginRequest.username(), authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+                final String accessToken = jwtService.generateToken(loginRequest.email(),
+                        authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+                final String refreshToken = jwtService.generateRefreshToken(loginRequest.email(),
+                        authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 
                 tokens = LoginResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
-                        .userProfile(userService.getProfile(loginRequest.username()))
-                        .build();               
+                        .userProfile(userService.getProfile(loginRequest.email()))
+                        .build();
             }
         } catch (AuthenticationException e) {
             throw new RuntimeException("Tên đăng nhập hoặc mật khẩu không chính xác");
-        }    
+        }
+
         return tokens;
     }
 }

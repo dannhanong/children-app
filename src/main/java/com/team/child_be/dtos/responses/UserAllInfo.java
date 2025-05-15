@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class UserAllInfo {
     Long id;
     String name;
-    String username;
+    String email;
     String password;
     boolean enabled;
     String verificationCode;

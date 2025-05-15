@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService {
             UserAllInfo userAllInfo = new UserAllInfo();
             userAllInfo.setId(user.getId());
             userAllInfo.setName(user.getName());
-            userAllInfo.setUsername(user.getUsername());
+            userAllInfo.setEmail(user.getUsername());
             userAllInfo.setEnabled(user.isEnabled());
             userAllInfo.setPhoneNumber(user.getPhoneNumber());
             userAllInfo.setAvatarId(user.getAvatarCode());
@@ -298,7 +298,7 @@ public class UserServiceImpl implements UserService {
 
         return UserProfile.builder()
                 .name(user.getName())
-                .username(user.getUsername())
+                .email(user.getUsername())
                 .phoneNumber(user.getPhoneNumber())
                 .avatarCode(user.getAvatarCode())
                 .build();

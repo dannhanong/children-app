@@ -9,7 +9,7 @@ public record SignupRequest(
     String name,
 
     @Email(message = "Tên đăng nhập có định dạng email không hợp lệ")
-    String username,
+    String email,
 
     String password,
     String confirmPassword,
