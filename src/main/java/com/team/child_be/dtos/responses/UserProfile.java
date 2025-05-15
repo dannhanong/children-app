@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserProfile {
     String name;
-    String username;
+    String email;
     String phoneNumber;
     String avatarCode;
 }

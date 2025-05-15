@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class ChildResponse {
     private Long id;
     private String name;
-    private String username;
+    private String email;
     private String phoneNumber;
     private String avatarCode;
     private String accessCode;

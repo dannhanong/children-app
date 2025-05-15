@@ -4,7 +4,7 @@ import lombok.*;
 
 @Builder
 public record LoginRequest(
-    String username,
+    String email,
     String password,
     String accessCode,
     boolean rememberMe

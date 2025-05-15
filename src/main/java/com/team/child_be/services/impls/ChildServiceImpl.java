@@ -362,7 +362,7 @@ public class ChildServiceImpl implements ChildService {
         return ChildResponse.builder()
                 .id(child.getId())
                 .name(child.getName())
-                .username(child.getUsername())
+                .email(child.getUsername())
                 .phoneNumber(child.getPhoneNumber())
                 .avatarCode(child.getAvatarCode())
                 .accessCode(child.getAccessCode())

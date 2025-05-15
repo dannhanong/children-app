@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public User signup(SignupRequest signupRequest) {
-        if (userRepository.existsByUsername(signupRequest.username())) {
+        if (userRepository.existsByUsername(signupRequest.email())) {
             throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
         if (userRepository.existsByPhoneNumber(signupRequest.phoneNumber())) {
@@ -88,7 +88,7 @@ public class AccountServiceImpl implements AccountService {
 
         User user = User.builder()
             .name(signupRequest.name())
-            .username(signupRequest.username())
+            .username(signupRequest.email())
             .phoneNumber(signupRequest.phoneNumber())
             .password(passwordEncoder.encode(signupRequest.password()))
             .roles(roles)
@@ -126,7 +126,7 @@ public class AccountServiceImpl implements AccountService {
     public LoginResponse login(LoginRequest loginRequest) {
         LoginResponse tokens = new LoginResponse();
         try {
-            User user = userRepository.findByUsername(loginRequest.username());
+            User user = userRepository.findByUsername(loginRequest.email());
             if (user == null) {
                 throw new RuntimeException("Tên đăng nhập hoặc mật khẩu không chính xác");
             }
@@ -144,22 +144,22 @@ public class AccountServiceImpl implements AccountService {
             }
 
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+                    new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
 
-            if (!userService.isEnableUser(loginRequest.username())) {
+            if (!userService.isEnableUser(loginRequest.email())) {
                 throw new RuntimeException("Tài khoản chưa được xác minh hoặc đã bị khóa");
             }
 
             if (authentication.isAuthenticated()) {
-                final String accessToken = jwtService.generateToken(loginRequest.username(),
+                final String accessToken = jwtService.generateToken(loginRequest.email(),
                         authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
-                final String refreshToken = jwtService.generateRefreshToken(loginRequest.username(),
+                final String refreshToken = jwtService.generateRefreshToken(loginRequest.email(),
                         authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 
                 tokens = LoginResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
-                        .userProfile(userService.getProfile(loginRequest.username()))
+                        .userProfile(userService.getProfile(loginRequest.email()))
                         .build();
             }
         } catch (AuthenticationException e) {
