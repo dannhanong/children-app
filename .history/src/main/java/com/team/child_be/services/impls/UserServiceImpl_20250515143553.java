@@ -308,7 +308,6 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .avatarCode(user.getAvatarCode())
                 .role(role)
-                .points(user.getTotalPoints() == null ? 0.0 : user.getTotalPoints())
                 .build();
     }
 
@@ -351,24 +350,5 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Người dùng không tồn tại");
         }
         return user.isEnabled();
-    }
-
-    @Override
-    public User getMyParent(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new RuntimeException("Người dùng không tồn tại");
-        }
-        return userRepository.findById(user.getParentId())
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh"));
-    }
-
-    @Override
-    public List<User> getMyChildren(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new RuntimeException("Người dùng không tồn tại");
-        }
-        return userRepository.findByParentIdAndDeletedAtNull(user.getId());
     }
 }

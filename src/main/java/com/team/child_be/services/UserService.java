@@ -8,6 +8,9 @@ import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserAllInfo;
 import com.team.child_be.dtos.responses.UserProfile;
 import com.team.child_be.models.User;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,4 +32,6 @@ public interface UserService extends UserDetailsService {
     Page<UserAllInfo> getAllUserInfoAndByKeyword(Pageable pageable, String keyword);
     ResponseMessage updateProfile(UpdateProfileRequest updateProfileRequest, String username);
     UserProfile getProfile(String username);
+    User getMyParent(String username);
+    List<User> getMyChildren(String username);
 }

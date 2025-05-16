@@ -18,7 +18,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -72,8 +71,7 @@ public class User {
     String avatarCode;
     ProviderType providerType;
 
-    @OneToOne
-    Level level;
+    Double totalPoints;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

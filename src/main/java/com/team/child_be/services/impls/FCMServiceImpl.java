@@ -31,14 +31,21 @@ public class FCMServiceImpl implements FCMService{
     private UserRepository userRepository;
 
     @Override
-    public String sendNotification(String token, String title, String body) throws FirebaseMessagingException {
-        Notification notification = Notification.builder()
+    public String sendNotification(String token, String title, String body, String imageUrl) throws FirebaseMessagingException {
+        Notification.Builder notificationBuilder = Notification.builder()
                 .setTitle(title)
-                .setBody(body)
-                .build();
+                .setBody(body);
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            notificationBuilder.setImage(imageUrl);
+        }
+
+        Notification notification = notificationBuilder.build();
         
         Message message = Message.builder()
                 .setNotification(notification)
+                .putData("type", "NOTIFICATION_TYPE")
+                .putData("id", "notification-id")
                 .setToken(token)
                 .build();
         
@@ -71,7 +78,7 @@ public class FCMServiceImpl implements FCMService{
     }
 
     @Override
-    public void sendNotificationToUser(Long userId, String title, String body) throws FirebaseMessagingException {
+    public void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException {
         List<DeviceToken> tokens = deviceTokenRepository.findByUser_IdAndActiveTrue(userId);
 
         if (tokens.isEmpty()) {
@@ -80,7 +87,7 @@ public class FCMServiceImpl implements FCMService{
 
         for (DeviceToken deviceToken : tokens) {
             try {
-                sendNotification(deviceToken.getToken(), title, body);
+                sendNotification(deviceToken.getToken(), title, body, imageUrl);
             } catch (FirebaseMessagingException e) {
                 log.error("Failed to send notification to user {}: {}", userId, e.getMessage());
             }
@@ -141,6 +148,36 @@ public class FCMServiceImpl implements FCMService{
         log.info("Fetching active tokens for user ID: {}", userId);
     
         return deviceTokenRepository.findByUser_IdAndActiveTrue(userId);
+    }
+
+    @Override
+    public DeviceToken registerDeviceToken(DeviceTokenRequest request) {
+        deviceTokenRepository.findByToken(request.token())
+            .ifPresent(existingToken -> {
+                existingToken.setActive(false);
+                deviceTokenRepository.save(existingToken);
+            });
+
+        DeviceToken deviceToken = deviceTokenRepository.findByToken(request.token())
+            .map(token -> {
+                token.setDeviceName(request.deviceName());
+                token.setDeviceModel(request.deviceModel());
+                token.setActive(true);
+                token.setUpdatedAt(LocalDateTime.now());
+                token.setLastUsedAt(LocalDateTime.now());
+                return token;
+            })
+            .orElseGet(() -> DeviceToken.builder()
+                .token(request.token())
+                .deviceName(request.deviceName())
+                .deviceModel(request.deviceModel())
+                .active(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .lastUsedAt(LocalDateTime.now())
+                .build());
+
+        return deviceTokenRepository.save(deviceToken);
     }
     
 }

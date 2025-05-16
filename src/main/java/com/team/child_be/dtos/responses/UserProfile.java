@@ -14,4 +14,6 @@ public class UserProfile {
     String email;
     String phoneNumber;
     String avatarCode;
+    String role;
+    Double points;
 }

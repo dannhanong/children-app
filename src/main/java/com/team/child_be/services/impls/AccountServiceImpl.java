@@ -168,4 +168,23 @@ public class AccountServiceImpl implements AccountService {
 
         return tokens;
     }
+
+    @Override
+    public ResponseMessage checkAccessCode(String accessCode, String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Tên đăng nhập không tồn tại");
+        }
+        if (user.getAccessCode() == null || user.getAccessCode().isEmpty()) {
+            throw new RuntimeException("Người dùng này không có mã truy cập");
+        }
+        if (!user.getAccessCode().equals(accessCode)) {
+            throw new RuntimeException("Mã truy cập không chính xác");
+        }
+
+        return ResponseMessage.builder()
+                .status(200)
+                .message("Mã truy cập hợp lệ")
+                .build();
+    }
 }

@@ -10,4 +10,5 @@ public interface AccountService {
     User signup(SignupRequest signupRequest);
     ResponseMessage verify(String token);
     LoginResponse login(LoginRequest loginRequest);
+    ResponseMessage checkAccessCode(String accessCode, String username);
 }
