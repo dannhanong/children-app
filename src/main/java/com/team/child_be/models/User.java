@@ -27,6 +27,7 @@ import jakarta.persistence.Table;
         @Index(name = "idx_user_name", columnList = "name"),
         @Index(name = "idx_user_username", columnList = "username"),
         @Index(name = "idx_user_phone_number", columnList = "phone_number"),
+        @Index(name = "idx_user_access_code", columnList = "access_code"),
     }
 )
 @Data

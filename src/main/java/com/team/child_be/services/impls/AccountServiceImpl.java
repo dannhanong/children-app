@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.team.child_be.dtos.enums.RoleName;
+import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
 import com.team.child_be.dtos.responses.LoginResponse;
@@ -186,5 +187,48 @@ public class AccountServiceImpl implements AccountService {
                 .status(200)
                 .message("Mã truy cập hợp lệ")
                 .build();
+    }
+
+    @Override
+    public ResponseMessage forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        User user = userRepository.findByUsername(forgotPasswordRequest.email());
+
+        if (user == null) {
+            throw new RuntimeException("Tên đăng nhập không tồn tại");
+        }
+
+        String newPassword = UUID.randomUUID().toString().substring(0, 6);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return ResponseMessage.builder()
+                .status(200)
+                .message("Mật khẩu mới đã được gửi đến email của bạn")
+                .build();
+    }
+
+    @Override
+    public LoginResponse loginWithAccessCode(String accessCode) {
+        String username = userRepository.findByAccessCodeAndDeletedAtIsNull(accessCode)
+                .orElseThrow(() -> new RuntimeException("Mã truy cập không hợp lệ")).getUsername();
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Mã truy cập không hợp lệ");
+        }
+        if (!user.isEnabled()) {
+            throw new RuntimeException("Tài khoản chưa được xác minh hoặc đã bị khóa");
+        }
+
+        final String accessToken = jwtService.generateToken(user.getUsername(),
+            user.getRoles().stream().map(Role::getName).map(Enum::name).collect(Collectors.toList()));
+        final String refreshToken = jwtService.generateRefreshToken(username,
+            user.getRoles().stream().map(Role::getName).map(Enum::name).collect(Collectors.toList()));
+
+        return LoginResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .userProfile(userService.getProfile(username))
+            .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.team.child_be.services;
 
+import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
 import com.team.child_be.dtos.responses.LoginResponse;
@@ -11,4 +12,6 @@ public interface AccountService {
     ResponseMessage verify(String token);
     LoginResponse login(LoginRequest loginRequest);
     ResponseMessage checkAccessCode(String accessCode, String username);
+    ResponseMessage forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
+    LoginResponse loginWithAccessCode(String accessCode);
 }

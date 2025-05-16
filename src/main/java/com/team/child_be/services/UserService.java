@@ -1,7 +1,6 @@
 package com.team.child_be.services;
 
 import com.team.child_be.dtos.requests.ChangePasswordRequest;
-import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.ResetPasswordRequest;
 import com.team.child_be.dtos.requests.UpdateProfileRequest;
 import com.team.child_be.dtos.responses.ResponseMessage;
@@ -23,7 +22,6 @@ public interface UserService extends UserDetailsService {
     ResponseMessage verify(String verificationCode);
     boolean isEnableUser(String username);
     ResponseMessage changePassword(String username, ChangePasswordRequest changePasswordRequest);
-    ResponseMessage forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
     User getUserByResetPasswordToken(String resetPasswordToken);
     ResponseMessage resetPassword(String resetPasswordToken, ResetPasswordRequest resetPasswordRequest);
     User oauth2Authenticate(String code);

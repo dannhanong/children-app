@@ -12,6 +12,7 @@ public class Endpoints {
 
         public static final String[] POST = {
             API_PREFIX + "/auth/login",
+            API_PREFIX + "/auth/child/login/**",
             API_PREFIX + "/auth/signup",
             API_PREFIX + "/auth/forgot-password",
             API_PREFIX + "/auth/refresh-token",

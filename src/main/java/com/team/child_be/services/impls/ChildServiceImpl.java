@@ -10,6 +10,7 @@ import com.team.child_be.models.User;
 import com.team.child_be.repositories.RoleRepository;
 import com.team.child_be.repositories.UserRepository;
 import com.team.child_be.services.ChildService;
+import com.team.child_be.services.ConversationService;
 import com.team.child_be.services.FileUploadService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class ChildServiceImpl implements ChildService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ConversationService conversationService;
 
     @Override
     public ChildResponse createChild(ChildRequest childRequest, String username) {
@@ -100,6 +104,8 @@ public class ChildServiceImpl implements ChildService {
 
         User savedChild = userRepository.save(child);
         log.info("Đã tạo tài khoản trẻ thành công với ID: {}", savedChild.getId());
+
+        conversationService.createDefaultConversation(savedChild.getId());
 
         return mapToChildResponse(savedChild);
     }
