@@ -1,13 +1,15 @@
 package com.team.child_be.services;
 
 import com.team.child_be.dtos.requests.ChangePasswordRequest;
-import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.ResetPasswordRequest;
 import com.team.child_be.dtos.requests.UpdateProfileRequest;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserAllInfo;
 import com.team.child_be.dtos.responses.UserProfile;
 import com.team.child_be.models.User;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +22,6 @@ public interface UserService extends UserDetailsService {
     ResponseMessage verify(String verificationCode);
     boolean isEnableUser(String username);
     ResponseMessage changePassword(String username, ChangePasswordRequest changePasswordRequest);
-    ResponseMessage forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
     User getUserByResetPasswordToken(String resetPasswordToken);
     ResponseMessage resetPassword(String resetPasswordToken, ResetPasswordRequest resetPasswordRequest);
     User oauth2Authenticate(String code);
@@ -29,4 +30,6 @@ public interface UserService extends UserDetailsService {
     Page<UserAllInfo> getAllUserInfoAndByKeyword(Pageable pageable, String keyword);
     ResponseMessage updateProfile(UpdateProfileRequest updateProfileRequest, String username);
     UserProfile getProfile(String username);
+    User getMyParent(String username);
+    List<User> getMyChildren(String username);
 }

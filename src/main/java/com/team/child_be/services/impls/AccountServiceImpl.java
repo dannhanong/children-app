@@ -10,9 +10,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.team.child_be.dtos.enums.RoleName;
+import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
 import com.team.child_be.dtos.responses.LoginResponse;
+import com.team.child_be.dtos.responses.NotificationEvent;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.models.Role;
 import com.team.child_be.models.User;
@@ -21,6 +23,7 @@ import com.team.child_be.repositories.UserRepository;
 import com.team.child_be.security.jwt.JwtService;
 import com.team.child_be.services.AccountService;
 import com.team.child_be.services.ConversationService;
+import com.team.child_be.services.EmailService;
 import com.team.child_be.services.UserService;
 
 import java.time.LocalDateTime;
@@ -45,6 +48,8 @@ public class AccountServiceImpl implements AccountService {
     private JwtService jwtService;
     @Autowired
     private ConversationService conversationService;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public User signup(SignupRequest signupRequest) {
@@ -167,5 +172,77 @@ public class AccountServiceImpl implements AccountService {
         }
 
         return tokens;
+    }
+
+    @Override
+    public ResponseMessage checkAccessCode(String accessCode, String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Tên đăng nhập không tồn tại");
+        }
+        if (user.getAccessCode() == null || user.getAccessCode().isEmpty()) {
+            throw new RuntimeException("Người dùng này không có mã truy cập");
+        }
+        if (!user.getAccessCode().equals(accessCode)) {
+            throw new RuntimeException("Mã truy cập không chính xác");
+        }
+
+        return ResponseMessage.builder()
+                .status(200)
+                .message("Mã truy cập hợp lệ")
+                .build();
+    }
+
+    @Override
+    public ResponseMessage forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        User user = userRepository.findByUsername(forgotPasswordRequest.email());
+
+        if (user == null) {
+            throw new RuntimeException("Tên đăng nhập không tồn tại");
+        }
+
+        String newPassword = UUID.randomUUID().toString().substring(0, 6);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(user.getUsername())
+                .nameOfRecipient(user.getName())
+                .subject("Quên mật khẩu")
+                .body(newPassword)
+                .build();
+
+        emailService.sendForgotPasswordEmail(notificationEvent);
+
+        return ResponseMessage.builder()
+                .status(200)
+                .message("Mật khẩu mới đã được gửi đến email của bạn")
+                .build();
+    }
+
+    @Override
+    public LoginResponse loginWithAccessCode(String accessCode) {
+        String username = userRepository.findByAccessCodeAndDeletedAtIsNull(accessCode)
+                .orElseThrow(() -> new RuntimeException("Mã truy cập không hợp lệ")).getUsername();
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Mã truy cập không hợp lệ");
+        }
+        if (!user.isEnabled()) {
+            throw new RuntimeException("Tài khoản chưa được xác minh hoặc đã bị khóa");
+        }
+
+        final String accessToken = jwtService.generateToken(user.getUsername(),
+            user.getRoles().stream().map(Role::getName).map(Enum::name).collect(Collectors.toList()));
+        final String refreshToken = jwtService.generateRefreshToken(username,
+            user.getRoles().stream().map(Role::getName).map(Enum::name).collect(Collectors.toList()));
+
+        return LoginResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .userProfile(userService.getProfile(username))
+            .build();
     }
 }

@@ -18,7 +18,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,6 +27,7 @@ import jakarta.persistence.Table;
         @Index(name = "idx_user_name", columnList = "name"),
         @Index(name = "idx_user_username", columnList = "username"),
         @Index(name = "idx_user_phone_number", columnList = "phone_number"),
+        @Index(name = "idx_user_access_code", columnList = "access_code"),
     }
 )
 @Data
@@ -72,8 +72,7 @@ public class User {
     String avatarCode;
     ProviderType providerType;
 
-    @OneToOne
-    Level level;
+    Double totalPoints;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

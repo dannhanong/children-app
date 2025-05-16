@@ -12,10 +12,12 @@ public class Endpoints {
 
         public static final String[] POST = {
             API_PREFIX + "/auth/login",
+            API_PREFIX + "/auth/child/login/**",
             API_PREFIX + "/auth/signup",
             API_PREFIX + "/auth/forgot-password",
             API_PREFIX + "/auth/refresh-token",
-            API_PREFIX + "/auth/oauth2/**"
+            API_PREFIX + "/auth/oauth2/**",
+            API_PREFIX + "/device-tokens/**"
         };
 
         public static final String[] PUT = {
@@ -49,6 +51,20 @@ public class Endpoints {
         
         public static final String[] PUT = {
             API_PREFIX + "/users/profile"
+        };
+    }
+
+    public static class Parent {
+        public static final String[] GET = {
+            API_PREFIX + "/parent/**"
+        };
+
+        public static final String[] POST = {
+            API_PREFIX + "/parent/**"
+        };
+        
+        public static final String[] PUT = {
+            API_PREFIX + "/parent/**"
         };
     }
 }

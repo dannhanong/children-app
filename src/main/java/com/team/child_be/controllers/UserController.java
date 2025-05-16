@@ -40,16 +40,37 @@ public class UserController {
 
     @GetMapping("/get")
     public ResponseEntity<?> searchByKeywork(@RequestParam(defaultValue = "") String keyword,
-                                                    @RequestParam(defaultValue = "0") int page,
-                                                    @RequestParam(defaultValue = "10") int size,
-                                                    @RequestParam(defaultValue = "id") String sortBy,
-                                                    @RequestParam(defaultValue = "desc") String order) {
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size,
+                                            @RequestParam(defaultValue = "id") String sortBy,
+                                            @RequestParam(defaultValue = "desc") String order) {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sortBy));
             Page<User> users = userService.searchByKeyword(keyword, pageable);
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi tìm kiếm người dùng: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/my-parent")
+    public ResponseEntity<?> getMyParent(HttpServletRequest request) {
+        try {
+            String username = jwtService.getUsernameFromRequest(request);
+            User parent = userService.getMyParent(username);
+            return ResponseEntity.ok(parent);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi lấy thông tin phụ huynh: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/my-children")
+    public ResponseEntity<?> getMyChildren(HttpServletRequest request) {
+        try {
+            String username = jwtService.getUsernameFromRequest(request);
+            return ResponseEntity.ok(userService.getMyChildren(username));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi lấy danh sách trẻ em: " + e.getMessage()));
         }
     }
 }

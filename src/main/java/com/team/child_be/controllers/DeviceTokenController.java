@@ -24,13 +24,21 @@ public class DeviceTokenController {
     @Autowired
     private JwtService jwtService;
     
+    // @PostMapping("/register")
+    // public ResponseEntity<ResponseMessage> registerToken(
+    //         // @AuthenticationPrincipal User currentUser,
+    //         HttpServletRequest request,
+    //         @Valid @RequestBody DeviceTokenRequest deviceTokenRequest) {
+    //     String username = jwtService.getUsernameFromRequest(request);
+    //     fcmService.registerDeviceToken(username, deviceTokenRequest);
+        
+    //     return ResponseEntity.ok(new ResponseMessage(200, "Đăng ký token thành công"));
+    // }
+
     @PostMapping("/register")
     public ResponseEntity<ResponseMessage> registerToken(
-            // @AuthenticationPrincipal User currentUser,
-            HttpServletRequest request,
             @Valid @RequestBody DeviceTokenRequest deviceTokenRequest) {
-        String username = jwtService.getUsernameFromRequest(request);
-        fcmService.registerDeviceToken(username, deviceTokenRequest);
+        fcmService.registerDeviceToken(deviceTokenRequest);
         
         return ResponseEntity.ok(new ResponseMessage(200, "Đăng ký token thành công"));
     }

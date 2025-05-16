@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
 import com.team.child_be.dtos.responses.LoginResponse;
@@ -19,6 +20,7 @@ import com.team.child_be.services.AccountService;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,6 +47,15 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             return ResponseEntity.ok(accountService.login(loginRequest));
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseMessage(400, e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/child/login/{code}")
+    public ResponseEntity<?> login(@PathVariable String code) {
+        try {
+            return ResponseEntity.ok(accountService.loginWithAccessCode(code));
         } catch (Exception e) {
             return new ResponseEntity<>(new ResponseMessage(400, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
@@ -82,6 +93,16 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(tokens);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        try {
+            accountService.forgotPassword(forgotPasswordRequest);
+            return ResponseEntity.ok(new ResponseMessage(200, "Đã gửi email đặt lại mật khẩu"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi gửi email: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/validate")

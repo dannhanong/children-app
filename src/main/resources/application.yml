@@ -18,6 +18,21 @@ spring:
     servlet:
       encoding:
         charset: UTF-8
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:ai@idai.vn}
+    password: ${MAIL_PASSWORD:gsjyqiazydhtvjuy}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   
   ai:
     openai:

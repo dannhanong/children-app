@@ -46,4 +46,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE u.parentId = :parentId AND r.name = com.team.child_be.dtos.enums.RoleName.CHILD AND u.deletedAt IS NULL")
     long countChildrenByParent(@Param("parentId") Long parentId);
+
+    List<User> findByParentIdAndDeletedAtNull(Long parentId);
 }

@@ -4,6 +4,7 @@ import com.team.child_be.dtos.enums.ProviderType;
 import com.team.child_be.dtos.enums.RoleName;
 import com.team.child_be.dtos.requests.ChangePasswordRequest;
 import com.team.child_be.dtos.requests.ExchangeTokenRequest;
+import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.ResetPasswordRequest;
 import com.team.child_be.dtos.requests.UpdateProfileRequest;
 import com.team.child_be.dtos.responses.NotificationEvent;
@@ -121,6 +122,22 @@ public class UserServiceImpl implements UserService {
         }
 
         return responseMessage;
+    }
+
+    @Override
+    public ResponseMessage forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        User user = userRepository.findByUsername(forgotPasswordRequest.email());
+        user.setResetPasswordToken(generateVerificationCode());
+        userRepository.save(user);
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(user.getUsername())
+                .nameOfRecipient(user.getName())
+                .subject("Quên mật khẩu")
+                .body(user.getResetPasswordToken())
+                .build();
+        // kafkaTemplate.send("hdkt-forgot-password", notificationEvent);
+        return new ResponseMessage(200, "Gửi mã xác nhận thành công");
     }
 
     @Override
@@ -291,7 +308,6 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .avatarCode(user.getAvatarCode())
                 .role(role)
-                .points(user.getTotalPoints() == null ? 0.0 : user.getTotalPoints())
                 .build();
     }
 
@@ -334,24 +350,5 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Người dùng không tồn tại");
         }
         return user.isEnabled();
-    }
-
-    @Override
-    public User getMyParent(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new RuntimeException("Người dùng không tồn tại");
-        }
-        return userRepository.findById(user.getParentId())
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy phụ huynh"));
-    }
-
-    @Override
-    public List<User> getMyChildren(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new RuntimeException("Người dùng không tồn tại");
-        }
-        return userRepository.findByParentIdAndDeletedAtNull(user.getId());
     }
 }
