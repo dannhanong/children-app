@@ -14,6 +14,7 @@ import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
 import com.team.child_be.dtos.responses.LoginResponse;
+import com.team.child_be.dtos.responses.NotificationEvent;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.models.Role;
 import com.team.child_be.models.User;
@@ -22,6 +23,7 @@ import com.team.child_be.repositories.UserRepository;
 import com.team.child_be.security.jwt.JwtService;
 import com.team.child_be.services.AccountService;
 import com.team.child_be.services.ConversationService;
+import com.team.child_be.services.EmailService;
 import com.team.child_be.services.UserService;
 
 import java.time.LocalDateTime;
@@ -46,6 +48,8 @@ public class AccountServiceImpl implements AccountService {
     private JwtService jwtService;
     @Autowired
     private ConversationService conversationService;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public User signup(SignupRequest signupRequest) {
@@ -201,6 +205,16 @@ public class AccountServiceImpl implements AccountService {
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(user.getUsername())
+                .nameOfRecipient(user.getName())
+                .subject("Quên mật khẩu")
+                .body(newPassword)
+                .build();
+
+        emailService.sendForgotPasswordEmail(notificationEvent);
 
         return ResponseMessage.builder()
                 .status(200)

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
 import com.team.child_be.dtos.responses.LoginResponse;
@@ -92,6 +93,16 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(tokens);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        try {
+            accountService.forgotPassword(forgotPasswordRequest);
+            return ResponseEntity.ok(new ResponseMessage(200, "Đã gửi email đặt lại mật khẩu"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi gửi email: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/validate")
