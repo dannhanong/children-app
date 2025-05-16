@@ -125,7 +125,7 @@ public class MissionServiceImpl implements MissionService{
         Mission mission = missionRepository.findById(missionId)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
 
-        if (user.getId() != mission.getParent().getId() || user.getId() != mission.getChild().getId()) {
+        if (user.getId() != mission.getParent().getId() && user.getId() != mission.getChild().getId()) {
             throw new RuntimeException("Bạn không có quyền xem nhiệm vụ này");
         }
 
@@ -139,6 +139,10 @@ public class MissionServiceImpl implements MissionService{
             .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
         if (mission.getCompletedAt() != null) {
             throw new RuntimeException("Nhiệm vụ đã hoàn thành");
+        }
+
+        if (!mission.getChild().getUsername().equals(username)) {
+            throw new RuntimeException("Bạn không có quyền hoàn thành nhiệm vụ này");
         }
 
         mission.setCompletedAt(LocalDateTime.now());
@@ -168,6 +172,14 @@ public class MissionServiceImpl implements MissionService{
         
         if (mission.getCompletedAt() == null) {
             throw new RuntimeException("Nhiệm vụ chưa hoàn thành");
+        }
+
+        if (mission.isConfirm()) {
+            throw new RuntimeException("Nhiệm vụ đã được xác nhận");
+        }
+
+        if (!mission.getParent().getUsername().equals(username)) {
+            throw new RuntimeException("Bạn không có quyền xác nhận nhiệm vụ này");
         }
 
         if (confirm) {
