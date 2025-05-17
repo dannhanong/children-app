@@ -64,7 +64,6 @@ public class User {
     @JsonIgnore
     Set<Role> roles;
 
-    @NotBlank(message = "Số điện thoại không được để trống")
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Số điện thoại không hợp lệ")
     @Size(min = 10, max = 15, message = "Số điện thoại phải có từ 10 đến 15 ký tự")
     String phoneNumber;

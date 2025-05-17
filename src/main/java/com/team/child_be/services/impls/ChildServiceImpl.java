@@ -80,7 +80,6 @@ public class ChildServiceImpl implements ChildService {
         User child = User.builder()
                 .name(childRequest.getName())
                 .username(childUsername)
-                .password(passwordEncoder.encode(childRequest.getPassword())) // Sử dụng password từ request
                 .phoneNumber(childRequest.getPhoneNumber())
                 .enabled(true)
                 .roles(roles)

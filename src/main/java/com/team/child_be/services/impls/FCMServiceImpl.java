@@ -179,5 +179,10 @@ public class FCMServiceImpl implements FCMService{
 
         return deviceTokenRepository.save(deviceToken);
     }
+
+    @Override
+    public String sendNotification(String token, String title, String body) throws FirebaseMessagingException {
+        return sendNotification(token, title, body, null);
+    }
     
 }

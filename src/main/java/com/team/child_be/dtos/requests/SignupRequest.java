@@ -11,12 +11,15 @@ public record SignupRequest(
     @Email(message = "Tên đăng nhập có định dạng email không hợp lệ")
     String email,
 
+    @NotBlank(message = "Mật khẩu không được để trống")
+    @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
     String password,
+    @NotBlank(message = "Xác nhận mật khẩu không được để trống")
+    @Size(min = 6, message = "Xác nhận mật khẩu phải có ít nhất 6 ký tự")
     String confirmPassword,
 
     String role,
 
-    @NotBlank(message = "Số điện thoại không được để trống")
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Số điện thoại không hợp lệ")
     @Size(min = 10, max = 15, message = "Số điện thoại phải có từ 10 đến 15 ký tự")
     String phoneNumber
