@@ -23,6 +23,10 @@ public class Endpoints {
         public static final String[] PUT = {
             API_PREFIX + "/auth/reset-password"
         };
+
+        public static final String[] DELETE = {
+            API_PREFIX + "/device-tokens/**"
+        };
     }
     
     public static class Admin {
@@ -56,15 +60,22 @@ public class Endpoints {
 
     public static class Parent {
         public static final String[] GET = {
-            API_PREFIX + "/parent/**"
+            API_PREFIX + "/parent/**",
+            API_PREFIX + "/blocked/**",
         };
 
         public static final String[] POST = {
-            API_PREFIX + "/parent/**"
+            API_PREFIX + "/parent/**",
+            API_PREFIX + "/blocked/**",
         };
         
         public static final String[] PUT = {
             API_PREFIX + "/parent/**"
+        };
+
+        public static final String[] DELETE = {
+            API_PREFIX + "/parent/**",
+            API_PREFIX + "/blocked/**",
         };
     }
 }

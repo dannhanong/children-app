@@ -50,6 +50,10 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, Endpoints.Admin.POST).hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.PUT, Endpoints.Admin.PUT).hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, Endpoints.Admin.DELETE).hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.GET, Endpoints.Parent.GET).hasAuthority("PARENT")
+                .requestMatchers(HttpMethod.POST, Endpoints.Parent.POST).hasAuthority("PARENT") 
+                .requestMatchers(HttpMethod.PUT, Endpoints.Parent.PUT).hasAuthority("PARENT")
+                .requestMatchers(HttpMethod.DELETE, Endpoints.Parent.DELETE).hasAuthority("PARENT")
                 .requestMatchers("/ws/**").permitAll()
                 .anyRequest().authenticated()
         );

@@ -52,7 +52,7 @@ public class FCMServiceImpl implements FCMService{
         try {
             String result = firebaseMessaging.send(message);
 
-            deviceTokenRepository.findByToken(token).ifPresent(deviceToken -> {
+            deviceTokenRepository.findByTokenContaining(token.split(":")[0]).ifPresent(deviceToken -> {
                 deviceToken.setLastUsedAt(LocalDateTime.now());
                 deviceTokenRepository.save(deviceToken);
             });
@@ -98,7 +98,7 @@ public class FCMServiceImpl implements FCMService{
     public DeviceToken registerDeviceToken(String username, DeviceTokenRequest request) {
         User user = userRepository.findByUsername(username);
         
-        deviceTokenRepository.findByToken(request.token())
+        deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
             .ifPresent(existingToken -> {
                 if (existingToken.getUser().getId() != user.getId()) {
                     existingToken.setActive(false);
@@ -106,7 +106,7 @@ public class FCMServiceImpl implements FCMService{
                 }
             });
 
-        DeviceToken deviceToken = deviceTokenRepository.findByToken(request.token())
+        DeviceToken deviceToken = deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
             .map(token -> {
                 token.setUser(user);
                 token.setDeviceName(request.deviceName());
@@ -134,8 +134,8 @@ public class FCMServiceImpl implements FCMService{
     @Transactional
     public void deactivateDeviceToken(String token) {
         log.info("Deactivating device token: {}", token);
-        
-        deviceTokenRepository.findByToken(token)
+
+        deviceTokenRepository.findByTokenContaining(token.split(":")[0])
                 .ifPresent(deviceToken -> {
                     deviceToken.setActive(false);
                     deviceToken.setUpdatedAt(LocalDateTime.now());
@@ -152,13 +152,13 @@ public class FCMServiceImpl implements FCMService{
 
     @Override
     public DeviceToken registerDeviceToken(DeviceTokenRequest request) {
-        deviceTokenRepository.findByToken(request.token())
+        deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
             .ifPresent(existingToken -> {
                 existingToken.setActive(false);
                 deviceTokenRepository.save(existingToken);
             });
 
-        DeviceToken deviceToken = deviceTokenRepository.findByToken(request.token())
+        DeviceToken deviceToken = deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
             .map(token -> {
                 token.setDeviceName(request.deviceName());
                 token.setDeviceModel(request.deviceModel());
