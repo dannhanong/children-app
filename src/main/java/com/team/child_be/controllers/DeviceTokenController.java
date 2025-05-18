@@ -44,8 +44,10 @@ public class DeviceTokenController {
     
     @DeleteMapping("/unregister")
     public ResponseEntity<ResponseMessage> unregisterToken(
-            @Valid @RequestBody DeviceTokenRequest request) {
-        fcmService.deactivateDeviceToken(request.token());
+            HttpServletRequest request,
+            @Valid @RequestBody DeviceTokenRequest deviceTokenRequest) {
+        String username = jwtService.getUsernameFromRequest(request);
+        fcmService.deactivateDeviceToken(username, deviceTokenRequest.token());
         return ResponseEntity.ok(new ResponseMessage(200, "Hủy đăng ký token thành công"));
     }
 }

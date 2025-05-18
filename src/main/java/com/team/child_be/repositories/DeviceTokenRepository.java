@@ -12,6 +12,7 @@ import com.team.child_be.models.DeviceToken;
 public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> {
     List<DeviceToken> findByUser_IdAndActiveTrue(Long userId);
     Optional<DeviceToken> findByTokenContaining(String token);
+    Optional<DeviceToken> findByTokenContainingAndUser_Username(String token, String username);
     boolean existsByToken(String token);
     void deleteByToken(String token);
     boolean existsByUser_UsernameAndToken(String username, String token);

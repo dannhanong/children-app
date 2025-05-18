@@ -25,7 +25,6 @@ public class Endpoints {
         };
 
         public static final String[] DELETE = {
-            API_PREFIX + "/device-tokens/**"
         };
     }
     
