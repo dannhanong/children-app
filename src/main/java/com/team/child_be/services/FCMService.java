@@ -11,7 +11,6 @@ public interface FCMService {
     String sendNotification(String token, String title, String body) throws FirebaseMessagingException;
     void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException;
     DeviceToken registerDeviceToken(String username, DeviceTokenRequest request);
-    DeviceToken registerDeviceToken(DeviceTokenRequest request);
-    void deactivateDeviceToken(String token);
+    void deactivateDeviceToken(String username, String token);
     List<DeviceToken> getUserActiveTokens(Long userId);
 }

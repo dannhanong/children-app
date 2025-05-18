@@ -64,7 +64,6 @@ public class FCMServiceImpl implements FCMService{
                     case UNREGISTERED:
                         // Token không còn hợp lệ (thiết bị đã gỡ cài đặt ứng dụng)
                         log.warn("Token is no longer valid: {}", token);
-                        deactivateDeviceToken(token);
                         break;
                     case INVALID_ARGUMENT:
                         log.error("Invalid token format: {}", token);
@@ -98,13 +97,13 @@ public class FCMServiceImpl implements FCMService{
     public DeviceToken registerDeviceToken(String username, DeviceTokenRequest request) {
         User user = userRepository.findByUsername(username);
         
-        deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
-            .ifPresent(existingToken -> {
-                if (existingToken.getUser().getId() != user.getId()) {
-                    existingToken.setActive(false);
-                    deviceTokenRepository.save(existingToken);
-                }
-            });
+        // deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
+        //     .ifPresent(existingToken -> {
+        //         if (existingToken.getUser().getId() != user.getId()) {
+        //             existingToken.setActive(false);
+        //             deviceTokenRepository.save(existingToken);
+        //         }
+        //     });
 
         DeviceToken deviceToken = deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
             .map(token -> {
@@ -132,10 +131,10 @@ public class FCMServiceImpl implements FCMService{
 
     @Override
     @Transactional
-    public void deactivateDeviceToken(String token) {
+    public void deactivateDeviceToken(String username, String token) {
         log.info("Deactivating device token: {}", token);
 
-        deviceTokenRepository.findByTokenContaining(token.split(":")[0])
+        deviceTokenRepository.findByTokenContainingAndUser_Username(token.split(":")[0], username)
                 .ifPresent(deviceToken -> {
                     deviceToken.setActive(false);
                     deviceToken.setUpdatedAt(LocalDateTime.now());
@@ -148,36 +147,6 @@ public class FCMServiceImpl implements FCMService{
         log.info("Fetching active tokens for user ID: {}", userId);
     
         return deviceTokenRepository.findByUser_IdAndActiveTrue(userId);
-    }
-
-    @Override
-    public DeviceToken registerDeviceToken(DeviceTokenRequest request) {
-        deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
-            .ifPresent(existingToken -> {
-                existingToken.setActive(false);
-                deviceTokenRepository.save(existingToken);
-            });
-
-        DeviceToken deviceToken = deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
-            .map(token -> {
-                token.setDeviceName(request.deviceName());
-                token.setDeviceModel(request.deviceModel());
-                token.setActive(true);
-                token.setUpdatedAt(LocalDateTime.now());
-                token.setLastUsedAt(LocalDateTime.now());
-                return token;
-            })
-            .orElseGet(() -> DeviceToken.builder()
-                .token(request.token())
-                .deviceName(request.deviceName())
-                .deviceModel(request.deviceModel())
-                .active(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .lastUsedAt(LocalDateTime.now())
-                .build());
-
-        return deviceTokenRepository.save(deviceToken);
     }
 
     @Override
