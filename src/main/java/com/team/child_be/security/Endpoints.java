@@ -60,7 +60,6 @@ public class Endpoints {
     public static class Parent {
         public static final String[] GET = {
             API_PREFIX + "/parent/**",
-            API_PREFIX + "/blocked/**",
         };
 
         public static final String[] POST = {

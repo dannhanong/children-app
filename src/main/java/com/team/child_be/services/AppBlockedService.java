@@ -11,4 +11,8 @@ public interface AppBlockedService {
     ResponseMessage deleteAppBlocked(String username, Long id);
     List<String> getMyChildAppBlocked(String username, Long childId);
     List<String> getMyChildWebBlocked(String username, Long childId);
+    List<String> getAllAppBlocked(String username);
+    List<String> getAllWebBlocked(String username);
+    List<String> getAllAppBlockedByChild(String username);
+    List<String> getAllWebBlockedByChild(String username);
 }

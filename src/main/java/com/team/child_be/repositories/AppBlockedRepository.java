@@ -11,4 +11,6 @@ import com.team.child_be.models.AppBlocked;
 @Repository
 public interface AppBlockedRepository extends JpaRepository<AppBlocked, Long> {
     List<AppBlocked> findByChild_IdAndAppType(Long childId, AppType appType);
+    List<AppBlocked> findByChild_ParentIdAndAppType(Long parentId, AppType appType);
+    List<AppBlocked> findByChild_UsernameAndAppType(String username, AppType appType);
 }

@@ -113,4 +113,46 @@ public class AppBlockedServiceImpl implements AppBlockedService{
             .toList();
     }
 
+    @Override
+    public List<String> getAllAppBlocked(String username) {
+        User parent = userRepository.findByUsername(username);
+        if (parent == null) {
+            throw new RuntimeException("Không tìm thấy tài khoản phụ huynh");
+        }
+
+        return appBlockedRepository.findByChild_ParentIdAndAppType(parent.getId(), AppType.APP)
+            .stream()
+            .map(AppBlocked::getAppName)
+            .toList();
+    }
+
+    @Override
+    public List<String> getAllWebBlocked(String username) {
+        User parent = userRepository.findByUsername(username);
+        if (parent == null) {
+            throw new RuntimeException("Không tìm thấy tài khoản phụ huynh");
+        }
+
+        return appBlockedRepository.findByChild_ParentIdAndAppType(parent.getId(), AppType.WEB)
+            .stream()
+            .map(AppBlocked::getAppName)
+            .toList();
+    }
+
+    @Override
+    public List<String> getAllAppBlockedByChild(String username) {
+        return appBlockedRepository.findByChild_UsernameAndAppType(username, AppType.APP)
+            .stream()
+            .map(AppBlocked::getAppName)
+            .toList();
+    }
+
+    @Override
+    public List<String> getAllWebBlockedByChild(String username) {
+        return appBlockedRepository.findByChild_UsernameAndAppType(username, AppType.WEB)
+            .stream()
+            .map(AppBlocked::getAppName)
+            .toList();
+    }
+
 }

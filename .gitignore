@@ -33,3 +33,5 @@ build/
 .vscode/
 Files-Upload/
 src/main/resources/child.json
+
+.env

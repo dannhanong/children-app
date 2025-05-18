@@ -220,7 +220,7 @@ public class MissionServiceImpl implements MissionService{
             throw new RuntimeException("Không tìm thấy người dùng");
         }
 
-        return missionRepository.findByTitleContainingAndParent_UsernameOrChild_UsernameAndDeletedAtNull(
+        return missionRepository.findByTitleContainingAndParent_UsernameOrChild_UsernameAndDeletedAtIsNull(
                 keyword, username, username, pageable);
     }
 }
