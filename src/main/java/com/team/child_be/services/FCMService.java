@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.team.child_be.dtos.requests.DeviceTokenRequest;
+import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.models.DeviceToken;
 
 public interface FCMService {
@@ -13,4 +14,5 @@ public interface FCMService {
     DeviceToken registerDeviceToken(String username, DeviceTokenRequest request);
     void deactivateDeviceToken(String username, String token);
     List<DeviceToken> getUserActiveTokens(Long userId);
+    ResponseMessage sendSosNotification(String username) throws FirebaseMessagingException;
 }

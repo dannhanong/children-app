@@ -7,10 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.team.child_be.dtos.requests.UpdateProfileRequest;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserProfile;
 import com.team.child_be.models.User;
@@ -38,8 +41,19 @@ public class UserController {
         }
     }
 
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(HttpServletRequest request, @ModelAttribute UpdateProfileRequest updateProfileRequest) {
+        try {
+            String username = jwtService.getUsernameFromRequest(request);
+            userService.updateProfile(updateProfileRequest, username);
+            return ResponseEntity.ok(new ResponseMessage(200, "Cập nhật thông tin thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi cập nhật thông tin người dùng: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/get")
-    public ResponseEntity<?> searchByKeywork(@RequestParam(defaultValue = "") String keyword,
+    public ResponseEntity<?> searchByKeyword(@RequestParam(defaultValue = "") String keyword,
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size,
                                             @RequestParam(defaultValue = "id") String sortBy,
