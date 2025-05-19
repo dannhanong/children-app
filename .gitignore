@@ -35,3 +35,4 @@ Files-Upload/
 src/main/resources/child.json
 
 .env
+docker-compose.yml
