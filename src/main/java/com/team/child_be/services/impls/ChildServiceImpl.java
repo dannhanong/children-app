@@ -80,6 +80,7 @@ public class ChildServiceImpl implements ChildService {
         User child = User.builder()
                 .name(childRequest.getName())
                 .username(childUsername)
+                .password(passwordEncoder.encode(accessCode))
                 .phoneNumber(childRequest.getPhoneNumber())
                 .enabled(true)
                 .roles(roles)

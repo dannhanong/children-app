@@ -58,7 +58,7 @@ public class AppBlockedServiceImpl implements AppBlockedService{
     }
 
     @Override
-    public List<String> getMyChildAppBlocked(String username, Long childId) {
+    public List<AppBlocked> getMyChildAppBlocked(String username, Long childId) {
         User child = userRepository.findById(childId)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản trẻ"));
 
@@ -69,10 +69,7 @@ public class AppBlockedServiceImpl implements AppBlockedService{
             throw new RuntimeException("Bạn không có quyền xem ứng dụng bị chặn cho tài khoản này");
         }
 
-        return appBlockedRepository.findByChild_IdAndAppType(childId, AppType.APP)
-            .stream()
-            .map(AppBlocked::getAppName)
-            .toList();
+        return appBlockedRepository.findByChild_IdAndAppType(childId, AppType.APP);
     }
 
     @Override
@@ -96,7 +93,7 @@ public class AppBlockedServiceImpl implements AppBlockedService{
     }
 
     @Override
-    public List<String> getMyChildWebBlocked(String username, Long childId) {
+    public List<AppBlocked> getMyChildWebBlocked(String username, Long childId) {
         User child = userRepository.findById(childId)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản trẻ"));
 
@@ -107,10 +104,37 @@ public class AppBlockedServiceImpl implements AppBlockedService{
             throw new RuntimeException("Bạn không có quyền xem website bị chặn cho tài khoản này");
         }
 
-        return appBlockedRepository.findByChild_IdAndAppType(childId, AppType.WEB)
-            .stream()
-            .map(AppBlocked::getAppName)
-            .toList();
+        return appBlockedRepository.findByChild_IdAndAppType(childId, AppType.WEB);
+    }
+
+    @Override
+    public List<AppBlocked> getAllAppBlocked(String username) {
+        User parent = userRepository.findByUsername(username);
+        if (parent == null) {
+            throw new RuntimeException("Không tìm thấy tài khoản phụ huynh");
+        }
+
+        return appBlockedRepository.findByChild_ParentIdAndAppType(parent.getId(), AppType.APP);
+    }
+
+    @Override
+    public List<AppBlocked> getAllWebBlocked(String username) {
+        User parent = userRepository.findByUsername(username);
+        if (parent == null) {
+            throw new RuntimeException("Không tìm thấy tài khoản phụ huynh");
+        }
+
+        return appBlockedRepository.findByChild_ParentIdAndAppType(parent.getId(), AppType.WEB);
+    }
+
+    @Override
+    public List<AppBlocked> getAllAppBlockedByChild(String username) {
+        return appBlockedRepository.findByChild_UsernameAndAppType(username, AppType.APP);
+    }
+
+    @Override
+    public List<AppBlocked> getAllWebBlockedByChild(String username) {
+        return appBlockedRepository.findByChild_UsernameAndAppType(username, AppType.WEB);
     }
 
 }

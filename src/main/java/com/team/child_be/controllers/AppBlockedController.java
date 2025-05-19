@@ -48,6 +48,30 @@ public class AppBlockedController {
         return ResponseEntity.ok(appBlockedService.getMyChildAppBlocked(username, childId));
     }
 
+    @GetMapping("/all/app")
+    public ResponseEntity<?> getAllAppBlocked(HttpServletRequest request) {
+        String username = jwtService.getUsernameFromRequest(request);
+        return ResponseEntity.ok(appBlockedService.getAllAppBlocked(username));
+    }
+
+    @GetMapping("/all/web")
+    public ResponseEntity<?> getAllWebBlocked(HttpServletRequest request) {
+        String username = jwtService.getUsernameFromRequest(request);
+        return ResponseEntity.ok(appBlockedService.getAllWebBlocked(username));
+    }
+
+    @GetMapping("/all/app/child")
+    public ResponseEntity<?> getAllAppBlockedByChild(HttpServletRequest request) {
+        String username = jwtService.getUsernameFromRequest(request);
+        return ResponseEntity.ok(appBlockedService.getAllAppBlockedByChild(username));
+    }
+
+    @GetMapping("/all/web/child")
+    public ResponseEntity<?> getAllWebBlockedByChild(HttpServletRequest request) {
+        String username = jwtService.getUsernameFromRequest(request);
+        return ResponseEntity.ok(appBlockedService.getAllWebBlockedByChild(username));
+    }
+
     @GetMapping("/web/{childId}")
     public ResponseEntity<?> getMyChildWebBlocked(HttpServletRequest request, @PathVariable Long childId) {
         String username = jwtService.getUsernameFromRequest(request);

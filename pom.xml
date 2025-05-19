@@ -130,6 +130,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.agora</groupId>
+			<artifactId>authentication</artifactId>
+			<version>1.6.1</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>

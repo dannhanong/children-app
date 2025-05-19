@@ -12,6 +12,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.team.child_be.dtos.requests.DeviceTokenRequest;
+import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.models.DeviceToken;
 import com.team.child_be.models.User;
 import com.team.child_be.repositories.DeviceTokenRepository;
@@ -152,6 +153,30 @@ public class FCMServiceImpl implements FCMService{
     @Override
     public String sendNotification(String token, String title, String body) throws FirebaseMessagingException {
         return sendNotification(token, title, body, null);
+    }
+
+    @Override
+    public ResponseMessage sendSosNotification(String username) throws FirebaseMessagingException {
+        User child = userRepository.findByUsername(username);
+        if (child == null) {
+            throw new RuntimeException("Không tìm thấy người dùng");
+        }
+
+        Long parentId = child.getParentId();
+
+        String title = "Cảnh báo SOS!";
+        String body = "Trẻ em của bạn đã gửi cảnh báo SOS!";
+
+        List<DeviceToken> tokens = deviceTokenRepository.findByUser_IdAndActiveTrue(parentId);
+        if (tokens.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy thiết bị nào của người dùng");
+        }
+
+        for (DeviceToken deviceToken : tokens) {
+            sendNotification(deviceToken.getToken(), title, body);
+        }
+
+        return new ResponseMessage(200, "Đã gửi thông báo SOS thành công");
     }
     
 }
