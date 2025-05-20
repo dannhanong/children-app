@@ -2,6 +2,7 @@ package com.team.child_be.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,5 +27,11 @@ public class ChildLocationController {
                                                 @RequestBody ChildLocationRequest childLocationRequest) {
         String username = jwtService.getUsernameFromRequest(request);
         return ResponseEntity.ok(childLocationService.addChildLocation(username, childLocationRequest));
+    }
+
+    @GetMapping("/family")
+    public ResponseEntity<?> getFamilyLocations(HttpServletRequest request) {
+        String username = jwtService.getUsernameFromRequest(request);
+        return ResponseEntity.ok(childLocationService.getFamilyLocations(username));
     }
 }

@@ -42,7 +42,7 @@ spring:
       api-key: ${OPEN_AI_KEY}
       chat:
         options:
-          model: ${OPENAI_MODEL}
+          model: ${OPENAI_MODEL:gpt-4.1-nano}
 
 oauth2:
   identity:
