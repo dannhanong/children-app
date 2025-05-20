@@ -2,11 +2,14 @@ package com.team.child_be.services.impls;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.team.child_be.configs.AgoraConfig;
@@ -24,8 +27,12 @@ import com.team.child_be.services.FCMService;
 
 import io.agora.media.RtcTokenBuilder;
 import io.agora.media.RtcTokenBuilder.Role;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Transactional
+@Slf4j
 public class AgoraServiceImpl implements AgoraService {
 
     @Autowired
@@ -104,16 +111,25 @@ public class AgoraServiceImpl implements AgoraService {
         
         callRepository.save(call);
         
-        // Gửi thông báo đến người nhận qua FCM
+        // Gửi thông báo đến người nhận qua FCM với dữ liệu bổ sung cho cuộc gọi
         try {
-            fcmService.sendNotificationToUser(
+            Map<String, String> callData = new HashMap<>();
+            callData.put("type", "call");
+            callData.put("channelId", channelName);
+            callData.put("callerId", caller.getId().toString());
+            callData.put("callerName", caller.getName());
+            
+            fcmService.sendNotificationWithDataToUser(
                 receiver.getId(),
                 "Cuộc gọi đến",
                 "Cuộc gọi từ " + caller.getName(),
-                null
+                callData
             );
+            
+            log.info("Call notification sent successfully to user ID: {} with channel: {}", receiver.getId(), channelName);
         } catch (FirebaseMessagingException e) {
-            // Log lỗi nhưng vẫn tiếp tục xử lý
+            log.error("Failed to send call notification: {}", e.getMessage());
+            // Tiếp tục xử lý, không throw exception
         }
         
         return ResponseMessage.builder()
@@ -201,5 +217,127 @@ public class AgoraServiceImpl implements AgoraService {
                 .answered(call.getAnswered())
                 .build())
             .toList();
+    }
+
+    @Override
+    public Map<String, Object> initiateCallMerge(String username, CallRequest callRequest) {
+        User caller = userRepository.findByUsername(username);
+        if (caller == null) {
+            return Map.of(
+                "status", 404,
+                "message", "Không tìm thấy người dùng"
+            );
+        }
+        
+        User receiver = userRepository.findById(callRequest.receiverId())
+        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người nhận"));
+    
+        // Tạo channelName ngẫu nhiên
+        String channelName = UUID.randomUUID().toString();
+        
+        // Tạo cuộc gọi trong database
+        Call call = Call.builder()
+            .caller(caller)
+            .receiver(receiver)
+            .channelName(channelName)
+            .startTime(LocalDateTime.now())
+            .answered(false)
+            .build();
+        
+        callRepository.save(call);
+        
+        // Tạo Agora token cho người gọi
+        RtcTokenBuilder tokenBuilder = new RtcTokenBuilder();
+        int expirationTimeInSeconds = 3600; // 1 giờ
+        int timestamp = (int)(System.currentTimeMillis() / 1000 + expirationTimeInSeconds);
+        
+        String token = tokenBuilder.buildTokenWithUid(
+            agoraConfig.getAppId(),
+            agoraConfig.getAppCertificate(),
+            channelName,
+            0, // uid
+            RtcTokenBuilder.Role.Role_Publisher,
+            timestamp
+        );
+        
+        // Gửi thông báo FCM cho người nhận
+        try {
+            Map<String, String> callData = new HashMap<>();
+            callData.put("type", "call");
+            callData.put("channelId", channelName);
+            callData.put("callerId", caller.getId().toString());
+            callData.put("callerName", caller.getName());
+            
+            fcmService.sendNotificationWithDataToUser(
+                receiver.getId(),
+                "Cuộc gọi đến",
+                "Cuộc gọi từ " + caller.getName(),
+                callData
+            );
+        } catch (Exception e) {
+            log.error("Error sending FCM notification", e);
+            // Tiếp tục xử lý, không throw exception
+        }
+        
+        // Trả về đầy đủ thông tin cần thiết
+        return Map.of(
+            "status", 200,
+            "channelName", channelName,
+            "token", token,
+            "uid", 0,
+            "expireTime", timestamp
+        );
+    }
+
+    @Override
+    public Map<String, Object> joinCall(String username, String channelName) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return Map.of(
+                "status", 404,
+                "message", "Không tìm thấy người dùng"
+            );
+        }
+        
+        Call call = callRepository.findByChannelName(channelName)
+        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy cuộc gọi với kênh: " + channelName));
+    
+        // Kiểm tra quyền tham gia cuộc gọi
+        boolean isParticipant = call.getCaller().getId().equals(user.getId()) || 
+                            call.getReceiver().getId().equals(user.getId());
+        
+        if (!isParticipant) {
+            return Map.of(
+                "status", 403,
+                "message", "Bạn không có quyền tham gia cuộc gọi này"
+            );
+        }
+        
+        // Tạo Agora token cho người tham gia
+        RtcTokenBuilder tokenBuilder = new RtcTokenBuilder();
+        int expirationTimeInSeconds = 3600; // 1 giờ
+        int timestamp = (int)(System.currentTimeMillis() / 1000 + expirationTimeInSeconds);
+        
+        String token = tokenBuilder.buildTokenWithUid(
+            agoraConfig.getAppId(),
+            agoraConfig.getAppCertificate(),
+            channelName,
+            0, // uid
+            RtcTokenBuilder.Role.Role_Publisher,
+            timestamp
+        );
+        
+        // Nếu là người nhận, đánh dấu cuộc gọi đã được trả lời
+        if (call.getReceiver().getId().equals(user.getId())) {
+            call.setAnswered(true);
+            callRepository.save(call);
+        }
+        
+        return Map.of(
+            "token", token,
+            "channelName", channelName,
+            "uid", 0,
+            "expireTime", timestamp
+        );
     }
 }

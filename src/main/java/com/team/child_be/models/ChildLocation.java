@@ -27,8 +27,8 @@ public class ChildLocation {
     Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "child_id", referencedColumnName = "id")
-    User child;
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    User user;
 
     Double latitude;
     Double longitude;

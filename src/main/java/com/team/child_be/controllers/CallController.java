@@ -1,6 +1,7 @@
 package com.team.child_be.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +33,21 @@ public class CallController {
     }
     
     @PostMapping("/initiate")
-    public ResponseEntity<ResponseMessage> initiateCall(
+    public ResponseEntity<Map<String, Object>> initiateCall(
             Authentication authentication,
             @RequestBody CallRequest callRequest) {
         String username = authentication.getName();
-        ResponseMessage response = agoraService.initiateCall(username, callRequest);
-        return ResponseEntity.status(response.getStatus()).body(response);
+        Map<String, Object> response = agoraService.initiateCallMerge(username, callRequest);
+        return ResponseEntity.status((Integer) response.get("status")).body(response);
+    }
+
+    @GetMapping("/join")
+    public ResponseEntity<Map<String, Object>> joinCall(
+            Authentication authentication,
+            @RequestParam String channelName) {
+        String username = authentication.getName();
+        Map<String, Object> response = agoraService.joinCall(username, channelName);
+        return ResponseEntity.status((Integer) response.get("status")).body(response);
     }
     
     @PostMapping("/end")

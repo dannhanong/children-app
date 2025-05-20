@@ -2,6 +2,7 @@ package com.team.child_be.services.impls;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -177,6 +178,71 @@ public class FCMServiceImpl implements FCMService{
         }
 
         return new ResponseMessage(200, "Đã gửi thông báo SOS thành công");
+    }
+
+    @Override
+    public String sendNotificationWithData(String token, String title, String body, Map<String, String> data)
+            throws FirebaseMessagingException {
+        Notification.Builder notificationBuilder = Notification.builder()
+                .setTitle(title)
+                .setBody(body);
+
+        Message.Builder messageBuilder = Message.builder()
+                .setNotification(notificationBuilder.build())
+                .setToken(token);
+                
+        // Thêm tất cả dữ liệu tùy chỉnh
+        if (data != null) {
+            for (Map.Entry<String, String> entry : data.entrySet()) {
+                messageBuilder.putData(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        Message message = messageBuilder.build();
+        
+        try {
+            String result = firebaseMessaging.send(message);
+
+            deviceTokenRepository.findByTokenContaining(token.split(":")[0]).ifPresent(deviceToken -> {
+                deviceToken.setLastUsedAt(LocalDateTime.now());
+                deviceTokenRepository.save(deviceToken);
+            });
+
+            return result;
+        } catch (FirebaseMessagingException e) {
+            if (e.getMessagingErrorCode() != null) {
+                switch (e.getMessagingErrorCode()) {
+                    case UNREGISTERED:
+                        log.warn("Token is no longer valid: {}", token);
+                        break;
+                    case INVALID_ARGUMENT:
+                        log.error("Invalid token format: {}", token);
+                        break;
+                    default:
+                        log.error("Failed to send notification: {}", e.getMessage());
+                }
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    public void sendNotificationWithDataToUser(Long userId, String title, String body, Map<String, String> data)
+            throws FirebaseMessagingException {
+        List<DeviceToken> tokens = deviceTokenRepository.findByUser_IdAndActiveTrue(userId);
+
+        if (tokens.isEmpty()) {
+            log.warn("No active device tokens found for user ID: {}", userId);
+            return;
+        }
+
+        for (DeviceToken deviceToken : tokens) {
+            try {
+                sendNotificationWithData(deviceToken.getToken(), title, body, data);
+            } catch (FirebaseMessagingException e) {
+                log.error("Failed to send notification to user {}: {}", userId, e.getMessage());
+            }
+        }
     }
     
 }

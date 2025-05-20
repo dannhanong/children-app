@@ -15,4 +15,6 @@ public interface FCMService {
     void deactivateDeviceToken(String username, String token);
     List<DeviceToken> getUserActiveTokens(Long userId);
     ResponseMessage sendSosNotification(String username) throws FirebaseMessagingException;
+    String sendNotificationWithData(String token, String title, String body, java.util.Map<String, String> data) throws FirebaseMessagingException;
+    void sendNotificationWithDataToUser(Long userId, String title, String body, java.util.Map<String, String> data) throws FirebaseMessagingException;
 }
