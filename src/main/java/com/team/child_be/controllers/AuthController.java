@@ -51,6 +51,10 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+        String username = jwtService.getUsernameFromToken(token);
+
+        accountService.logout(username);
+        
         jwtService.deleteToken(token);
         return new ResponseEntity<>(new ResponseMessage(200, "Đăng xuất thành công"), HttpStatus.OK);
     }
