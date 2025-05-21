@@ -61,6 +61,7 @@ public class ConversationServiceImpl implements ConversationService{
                     return convertToConversationResponse(conversation, conversation.getUserOne());
                 }
             })
+            .sorted(Comparator.comparing(ConversationResponse::getLastMessageTime).reversed())
             .toList();
     }
 
