@@ -49,6 +49,9 @@ public class Chatlog {
     ChatType type;    
     boolean seen;
     
+    @Builder.Default
+    boolean saveForLater = false;
+
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;

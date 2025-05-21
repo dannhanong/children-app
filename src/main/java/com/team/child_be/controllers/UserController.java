@@ -5,14 +5,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.team.child_be.dtos.requests.ChangePasswordRequest;
 import com.team.child_be.dtos.requests.UpdateProfileRequest;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserProfile;
@@ -86,5 +89,12 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi lấy danh sách trẻ em: " + e.getMessage()));
         }
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<ResponseMessage> changePassword(HttpServletRequest request,
+                                                          @RequestBody ChangePasswordRequest changePasswordRequest) {
+        String username = jwtService.getUsernameFromRequest(request);
+        return ResponseEntity.ok(userService.changePassword(username, changePasswordRequest));
     }
 }

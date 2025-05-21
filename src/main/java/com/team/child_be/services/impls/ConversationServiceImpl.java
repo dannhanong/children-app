@@ -337,4 +337,22 @@ public class ConversationServiceImpl implements ConversationService{
                 "Trợ lý ảo trả lời: ";
         return new Prompt(prompt);
     }
+
+    @Override
+    public ResponseMessage saveChatlog(String username, Long chatlogId) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Không tìm thấy người dùng");
+        }
+
+        Chatlog chatlog = chatlogRepository.findById(chatlogId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy tin nhắn"));
+
+        chatlog.setSaveForLater(true);
+        chatlogRepository.save(chatlog);
+        return ResponseMessage.builder()
+            .status(200)
+            .message("Lưu tin nhắn thành công")
+            .build();
+    }
 }

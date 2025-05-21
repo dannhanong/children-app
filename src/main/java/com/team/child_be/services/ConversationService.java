@@ -12,4 +12,5 @@ public interface ConversationService {
     ResponseMessage sendMessage(String username, SendMessageRequest sendMessageRequest);
     List<ChatlogResponse> geChatlogs(String username, Long conversationId);
     void createDefaultConversation(Long userId);
+    ResponseMessage saveChatlog(String username, Long chatLogId);
 }
