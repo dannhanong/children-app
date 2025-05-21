@@ -15,7 +15,7 @@ class ChildBeApplicationTests {
 	@Test
 	void contextLoads() {
 		try {
-			fcmService.sendNotificationToUser(13L, "Thông báo", "Xin chào", "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1EYUPm.img?w=768&h=512&m=6&x=318&y=188&s=210&d=210");
+			fcmService.sendNotificationToUser(3L, "Thông báo", "Xin chào", "c-Wr5tJ9Rm63KNdrDRwDij:APA91bEywC7_kS1C1xQaSpjxlyYd_WtktkN1YK9p4t788wHHRY3GtM7n9Oh50d8MQ5KBy3E-AMD5MaYVZ5G3fUBlANzPTK3QBsXbF5z3ImOzTcLc_o54b5Q");
 		} catch (FirebaseMessagingException e) {
 			e.printStackTrace();
 		}

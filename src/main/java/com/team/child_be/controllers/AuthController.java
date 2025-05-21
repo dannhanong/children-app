@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.api.Http;
+import com.team.child_be.dtos.requests.ChangePasswordRequest;
 import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
@@ -17,12 +19,15 @@ import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.security.jwt.JwtService;
 import com.team.child_be.services.AccountService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
@@ -73,26 +78,6 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ResponseMessage(400, "Lỗi xác thực: " + e.getMessage()));
         }
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-        if (refreshToken == null || jwtService.isTokenExpired(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
-        }
-
-        String username = jwtService.extractUsername(refreshToken);
-        List<String> roles = jwtService.extractClaim(refreshToken, claims -> claims.get("roles", List.class));
-        String newAccessToken = jwtService.generateToken(username, roles);
-        String newRefreshToken = jwtService.generateRefreshToken(username, roles);
-        
-        LoginResponse tokens = LoginResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
-
-        return ResponseEntity.ok(tokens);
     }
 
     @PostMapping("/forgot-password")
