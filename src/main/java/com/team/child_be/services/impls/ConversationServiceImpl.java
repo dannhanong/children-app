@@ -83,7 +83,7 @@ public class ConversationServiceImpl implements ConversationService{
         }
 
         Conversation conversation = conversationRepository
-            .findByUserOne_UsernameAndUserTwo_Username(sender.getUsername(), receiver.getUsername());
+            .findByUserOne_UsernameAndUserTwo_UsernameOrUserTwo_UsernameAndUserOne_Username(sender.getUsername(), receiver.getUsername(), sender.getUsername(), receiver.getUsername());
 
         if (sender.getId() == receiver.getId()) {
             return ResponseMessage.builder()
