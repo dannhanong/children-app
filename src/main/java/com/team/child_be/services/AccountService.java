@@ -14,4 +14,5 @@ public interface AccountService {
     ResponseMessage checkAccessCode(String accessCode, String username);
     ResponseMessage forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
     LoginResponse loginWithAccessCode(String accessCode);
+    ResponseMessage logout(String username);
 }

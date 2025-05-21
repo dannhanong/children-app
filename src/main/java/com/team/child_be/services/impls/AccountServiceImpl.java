@@ -18,6 +18,7 @@ import com.team.child_be.dtos.responses.NotificationEvent;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.models.Role;
 import com.team.child_be.models.User;
+import com.team.child_be.repositories.DeviceTokenRepository;
 import com.team.child_be.repositories.RoleRepository;
 import com.team.child_be.repositories.UserRepository;
 import com.team.child_be.security.jwt.JwtService;
@@ -50,6 +51,8 @@ public class AccountServiceImpl implements AccountService {
     private ConversationService conversationService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private DeviceTokenRepository deviceTokenRepository;
 
     @Override
     public User signup(SignupRequest signupRequest) {
@@ -244,5 +247,20 @@ public class AccountServiceImpl implements AccountService {
             .refreshToken(refreshToken)
             .userProfile(userService.getProfile(username))
             .build();
+    }
+
+    @Override
+    public ResponseMessage logout(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Tên đăng nhập không tồn tại");
+        }
+        // Xóa token thiết bị
+        deviceTokenRepository.deleteByUser_Username(username);
+
+        return ResponseMessage.builder()
+                .status(200)
+                .message("Đăng xuất thành công")
+                .build();
     }
 }
