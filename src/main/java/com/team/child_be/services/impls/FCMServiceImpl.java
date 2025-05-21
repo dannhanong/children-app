@@ -166,7 +166,7 @@ public class FCMServiceImpl implements FCMService{
         Long parentId = child.getParentId();
 
         String title = "Cảnh báo SOS!";
-        String body = "Trẻ em của bạn đã gửi cảnh báo SOS!";
+        String body =  child.getName() + " đã gửi cảnh báo SOS!";
 
         List<DeviceToken> tokens = deviceTokenRepository.findByUser_IdAndActiveTrue(parentId);
         if (tokens.isEmpty()) {
