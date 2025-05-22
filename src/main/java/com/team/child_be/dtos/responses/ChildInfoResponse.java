@@ -19,5 +19,6 @@ public class ChildInfoResponse {
     String phoneNumber;
     String avatarCode;
     Double totalPoints;
+    String accessCode;
     Integer batteryLevel;
 }
