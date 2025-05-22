@@ -20,4 +20,6 @@ public class ChatlogResponse {
     String message;
     ChatType type;
     private boolean seen;
+    private boolean saveForLater;
+    private boolean aiChat;
 }

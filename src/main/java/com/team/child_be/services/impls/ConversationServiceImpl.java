@@ -232,6 +232,8 @@ public class ConversationServiceImpl implements ConversationService{
                 .message(chatlog.getMessage() != null ? chatlog.getMessage() : "")
                 .type(chatlog.getType())
                 .seen(chatlog.isSeen())
+                .saveForLater(chatlog.isSaveForLater())
+                .aiChat(chatlog.isAiChat())
                 .build();
         } else {
             return ChatlogResponse.builder()
@@ -245,6 +247,8 @@ public class ConversationServiceImpl implements ConversationService{
                 .message(chatlog.getMessage() != null ? chatlog.getMessage() : "")
                 .type(chatlog.getType())
                 .seen(chatlog.isSeen())
+                .saveForLater(chatlog.isSaveForLater())
+                .aiChat(chatlog.isAiChat())
                 .build();
         }
     }
