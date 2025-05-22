@@ -372,6 +372,7 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .phoneNumber(user.getPhoneNumber())
                 .avatarCode(user.getAvatarCode())
+                .accessCode(user.getAccessCode())
                 .totalPoints(user.getTotalPoints() == null ? 0.0 : user.getTotalPoints())
                 .batteryLevel(batteryLevel)
                 .build();
