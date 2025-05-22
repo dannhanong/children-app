@@ -334,6 +334,7 @@ public class AgoraServiceImpl implements AgoraService {
         }
         
         return Map.of(
+            "status", 200,
             "token", token,
             "channelName", channelName,
             "uid", 0,
