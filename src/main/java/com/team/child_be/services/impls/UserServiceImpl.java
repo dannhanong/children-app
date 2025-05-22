@@ -6,15 +6,18 @@ import com.team.child_be.dtos.requests.ChangePasswordRequest;
 import com.team.child_be.dtos.requests.ExchangeTokenRequest;
 import com.team.child_be.dtos.requests.ResetPasswordRequest;
 import com.team.child_be.dtos.requests.UpdateProfileRequest;
+import com.team.child_be.dtos.responses.ChildInfoResponse;
 import com.team.child_be.dtos.responses.NotificationEvent;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserAllInfo;
 import com.team.child_be.dtos.responses.UserProfile;
 import com.team.child_be.http_clients.GoogleOauth2IdentityClient;
 import com.team.child_be.http_clients.GoogleOauth2UserClient;
+import com.team.child_be.models.ChildBattery;
 import com.team.child_be.models.FileUpload;
 import com.team.child_be.models.Role;
 import com.team.child_be.models.User;
+import com.team.child_be.repositories.ChildBatteryRepository;
 import com.team.child_be.repositories.RoleRepository;
 import com.team.child_be.repositories.UserRepository;
 import com.team.child_be.services.FileUploadService;
@@ -60,6 +63,8 @@ public class UserServiceImpl implements UserService {
     @Value("${oauth2.identity.redirect-uri}")
     protected String REDIRECT_URI;
     protected final String GRANT_TYPE = "authorization_code";
+    @Autowired
+    private ChildBatteryRepository childBatteryRepository;
 
     @Override
     public User createUser(User user) {
@@ -347,11 +352,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getMyChildren(String username) {
+    public List<ChildInfoResponse> getMyChildren(String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new RuntimeException("Người dùng không tồn tại");
         }
-        return userRepository.findByParentIdAndDeletedAtNull(user.getId());
+        return userRepository.findByParentIdAndDeletedAtNull(user.getId()).stream()
+                .map(this::convertToChildInfoResponse)
+                .collect(Collectors.toList());
+    }
+
+    private ChildInfoResponse convertToChildInfoResponse(User user) {
+        Integer batteryLevel = childBatteryRepository.findByChild(user)
+            .map(ChildBattery::getBatteryLevel)
+            .orElse(null);
+
+        return ChildInfoResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .phoneNumber(user.getPhoneNumber())
+                .avatarCode(user.getAvatarCode())
+                .totalPoints(user.getTotalPoints() == null ? 0.0 : user.getTotalPoints())
+                .batteryLevel(batteryLevel)
+                .build();
     }
 }

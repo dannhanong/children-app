@@ -3,6 +3,7 @@ package com.team.child_be.services;
 import com.team.child_be.dtos.requests.ChangePasswordRequest;
 import com.team.child_be.dtos.requests.ResetPasswordRequest;
 import com.team.child_be.dtos.requests.UpdateProfileRequest;
+import com.team.child_be.dtos.responses.ChildInfoResponse;
 import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.dtos.responses.UserAllInfo;
 import com.team.child_be.dtos.responses.UserProfile;
@@ -31,5 +32,5 @@ public interface UserService extends UserDetailsService {
     ResponseMessage updateProfile(UpdateProfileRequest updateProfileRequest, String username);
     UserProfile getProfile(String username);
     User getMyParent(String username);
-    List<User> getMyChildren(String username);
+    List<ChildInfoResponse> getMyChildren(String username);
 }
