@@ -11,4 +11,5 @@ import com.team.child_be.models.User;
 @Repository
 public interface ChildBatteryRepository extends JpaRepository<ChildBattery, Long> {
     Optional<ChildBattery> findByChild(User child);
+    void deleteByChild(User child);
 }
