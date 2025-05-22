@@ -19,6 +19,9 @@ public class ChildBatteryServiceImpl implements ChildBatteryService{
 
     @Override
     public ChildBattery createChildBattery(String username, ChildBattery childBattery) {
+        if (childBatteryRepository.findByChild(userRepository.findByUsername(username)).isPresent()) {
+            childBatteryRepository.deleteByChild(userRepository.findByUsername(username));
+        }
         childBattery.setChild(userRepository.findByUsername(username));
         childBattery.setTime(LocalDateTime.now());
         return childBatteryRepository.save(childBattery);
