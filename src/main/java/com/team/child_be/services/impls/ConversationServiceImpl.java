@@ -273,6 +273,7 @@ public class ConversationServiceImpl implements ConversationService{
             .seen(false)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
+            .aiChat(true)
             .build();
 
         List<Chatlog> chatlogs = chatlogRepository.findByConversation(conversation);
@@ -294,6 +295,7 @@ public class ConversationServiceImpl implements ConversationService{
             .seen(false)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
+            .aiChat(true)
             .build();
         
         chatlogRepository.save(chatlog2);

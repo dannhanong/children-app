@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.api.Http;
 import com.team.child_be.dtos.requests.ForgotPasswordRequest;
 import com.team.child_be.dtos.requests.LoginRequest;
 import com.team.child_be.dtos.requests.SignupRequest;
@@ -13,6 +14,7 @@ import com.team.child_be.dtos.responses.ResponseMessage;
 import com.team.child_be.security.jwt.JwtService;
 import com.team.child_be.services.AccountService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,11 +52,12 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
-        String username = jwtService.getUsernameFromToken(token);
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String username = jwtService.getUsernameFromRequest(request);
 
         accountService.logout(username);
         
+        String token = request.getHeader("Authorization").substring(7);
         jwtService.deleteToken(token);
         return new ResponseEntity<>(new ResponseMessage(200, "Đăng xuất thành công"), HttpStatus.OK);
     }
