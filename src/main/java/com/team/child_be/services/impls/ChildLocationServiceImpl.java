@@ -35,14 +35,6 @@ public class ChildLocationServiceImpl implements ChildLocationService {
                 .user(user)
                 .build();
 
-        List<ChildLocation> existingLocations = childLocationRepository.findByUser_Username(username);
-
-        if (existingLocations != null && !existingLocations.isEmpty()) {
-            for (ChildLocation existingLocation : existingLocations) {
-                childLocationRepository.delete(existingLocation);
-            }
-        }
-
         childLocationRepository.save(childLocation);
         return new ResponseMessage(200, "Thêm vị trí trẻ em thành công");
     }
@@ -52,19 +44,14 @@ public class ChildLocationServiceImpl implements ChildLocationService {
         User user = userRepository.findByUsername(username);
         List<User> familyMembers = new ArrayList<>();
 
-        if (user.getAccessCode() != null && !user.getAccessCode().isEmpty()) {
-            familyMembers = userRepository.findByParentIdAndDeletedAtNull(user.getParentId());
-            familyMembers.add(userRepository.findById(user.getParentId()).orElse(null));
-        } else {
-            familyMembers = userRepository.findByParentIdAndDeletedAtNull(user.getId());
-            familyMembers.add(user);
-        }
+        familyMembers = userRepository.findByParentIdAndDeletedAtNull(user.getId());
+        familyMembers.add(user);
 
         List<ChildLocation> familyLocations = new ArrayList<>();
         for (User familyMember : familyMembers) {
-            List<ChildLocation> locations = childLocationRepository.findByUser(familyMember);
-            if (locations != null && !locations.isEmpty()) {
-                familyLocations.addAll(locations);
+            ChildLocation location = childLocationRepository.findFirstByUserOrderByIdDesc(familyMember);
+            if (location != null) {
+                familyLocations.add(location);
             }
         }
         return familyLocations;

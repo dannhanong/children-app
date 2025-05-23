@@ -11,5 +11,5 @@ import com.team.child_be.models.User;
 @Repository
 public interface ChildLocationRepository extends JpaRepository<ChildLocation, Long> {
     List<ChildLocation> findByUser_Username(String username);
-    List<ChildLocation> findByUser(User user);
+    ChildLocation findFirstByUserOrderByIdDesc(User user);
 }
