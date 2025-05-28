@@ -49,4 +49,11 @@ public class ConversationController {
         String username = jwtService.getUsernameFromRequest(request);
         return ResponseEntity.ok(conversationService.saveChatlog(username, chatLogId));
     }
+
+    @GetMapping("/get/{userWantToSendId}")
+    public ResponseEntity<?> getConversationByUserWantToSend(HttpServletRequest request, 
+                                                              @PathVariable Long userWantToSendId) {
+        String username = jwtService.getUsernameFromRequest(request);
+        return ResponseEntity.ok(conversationService.getConversationByUserWantToSend(username, userWantToSendId));
+    }
 }

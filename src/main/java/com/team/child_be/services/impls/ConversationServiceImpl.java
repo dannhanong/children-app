@@ -362,4 +362,25 @@ public class ConversationServiceImpl implements ConversationService{
             .message("Lưu tin nhắn thành công")
             .build();
     }
+
+    @Override
+    public List<Chatlog> getConversationByUserWantToSend(String username, Long userWantToSendId) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Không tìm thấy người dùng");
+        }
+
+        User userWantToSend = userRepository.findById(userWantToSendId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy người muốn gửi tin nhắn"));
+
+        if (user.getId().equals(userWantToSend.getId())) {
+            throw new RuntimeException("Không thể gửi tin nhắn cho chính mình");
+        }
+
+        Conversation conversation = conversationRepository
+            .findByUserOne_UsernameAndUserTwo_UsernameOrUserTwo_UsernameAndUserOne_Username(
+                user.getUsername(), userWantToSend.getUsername(), user.getUsername(), userWantToSend.getUsername());
+
+        return chatlogRepository.findByConversation(conversation);
+    }
 }
