@@ -183,7 +183,7 @@ public class ConversationServiceImpl implements ConversationService{
                 .build()
             )
             .lastMessage(lastMessage != null ? lastMessage : "")
-            .lastMessageTime(conversation.getCreatedAt())
+            .lastMessageTime(lastChatlog != null ? lastChatlog.getCreatedAt() : conversation.getCreatedAt())
             .build();
     }
 
@@ -234,6 +234,7 @@ public class ConversationServiceImpl implements ConversationService{
                 .seen(chatlog.isSeen())
                 .saveForLater(chatlog.isSaveForLater())
                 .aiChat(chatlog.isAiChat())
+                .createdAt(chatlog.getCreatedAt())
                 .build();
         } else {
             return ChatlogResponse.builder()
@@ -249,6 +250,7 @@ public class ConversationServiceImpl implements ConversationService{
                 .seen(chatlog.isSeen())
                 .saveForLater(chatlog.isSaveForLater())
                 .aiChat(chatlog.isAiChat())
+                .createdAt(chatlog.getCreatedAt())
                 .build();
         }
     }

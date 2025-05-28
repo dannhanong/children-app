@@ -1,5 +1,7 @@
 package com.team.child_be.dtos.responses;
 
+import java.time.LocalDateTime;
+
 import com.team.child_be.dtos.enums.ChatType;
 
 import lombok.AllArgsConstructor;
@@ -22,4 +24,5 @@ public class ChatlogResponse {
     private boolean seen;
     private boolean saveForLater;
     private boolean aiChat;
+    private LocalDateTime createdAt;
 }
