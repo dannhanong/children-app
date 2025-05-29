@@ -8,6 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.team.child_be.dtos.enums.RoleName;
 import com.team.child_be.dtos.requests.ForgotPasswordRequest;
@@ -250,6 +251,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public ResponseMessage logout(String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
