@@ -19,6 +19,5 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> 
     boolean existsByUser_UsernameAndToken(String username, String token);
     void deleteByUser_Username(String username);
 
-    @Query("SELECT dt FROM DeviceToken dt WHERE dt.user.id = :userId AND dt.active = true ORDER BY dt.id DESC LIMIT 1")
-    DeviceToken findFirstByUser_IdAndActiveTrueOrderByIdDesc(Long userId);
+    DeviceToken findTopByUser_IdAndActiveTrueOrderByIdDesc(Long userId);
 }

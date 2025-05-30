@@ -82,7 +82,7 @@ public class FCMServiceImpl implements FCMService{
 
     @Override
     public void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException {
-        DeviceToken token = deviceTokenRepository.findFirstByUser_IdAndActiveTrueOrderByIdDesc(userId);
+        DeviceToken token = deviceTokenRepository.findTopByUser_IdAndActiveTrueOrderByIdDesc(userId);
         if (token == null) {
             return;
         }
