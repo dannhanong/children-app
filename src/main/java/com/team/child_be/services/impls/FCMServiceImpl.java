@@ -82,59 +82,52 @@ public class FCMServiceImpl implements FCMService{
 
     @Override
     public void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException {
-        Set<DeviceToken> tokens = deviceTokenRepository.findByUser_IdAndActiveTrue(userId).stream()
-            .collect(Collectors.toSet());
-
-        if (tokens.isEmpty()) {
+        DeviceToken token = deviceTokenRepository.findLastByUser_IdAndActiveTrue(userId);
+        if (token == null) {
             return;
         }
 
-        for (DeviceToken deviceToken : tokens) {
-            try {
-                sendNotification(deviceToken.getToken(), title, body, imageUrl);
-            } catch (FirebaseMessagingException e) {
-                log.error("Failed to send notification to user {}: {}", userId, e.getMessage());
-            }
+        try {
+            sendNotification(token.getToken(), title, body, imageUrl);
+        } catch (FirebaseMessagingException e) {
+            log.error("Failed to send notification to user {}: {}", userId, e.getMessage());
         }
     }
 
     @Override
-    @Transactional
     public DeviceToken registerDeviceToken(String username, DeviceTokenRequest request) {
-        User user = userRepository.findByUsernameAndDeletedAtIsNull(username)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+        User user = userRepository.findByUsername(username);
         
-        // Trích xuất phần cơ bản của token để so sánh
-        String tokenBase = request.token().split(":")[0];
-        
-        // Sử dụng synchronized block để tránh race condition
-        synchronized (this) {
-            // Kiểm tra xem đã tồn tại token cho thiết bị này chưa
-            DeviceToken deviceToken = deviceTokenRepository.findByTokenContaining(tokenBase)
-                .map(token -> {
-                    // Cập nhật thông tin nếu token đã tồn tại
-                    token.setUser(user);
-                    token.setDeviceName(request.deviceName());
-                    token.setDeviceModel(request.deviceModel());
-                    token.setToken(request.token()); // Cập nhật token mới nhất
-                    token.setActive(true);
-                    token.setUpdatedAt(LocalDateTime.now());
-                    token.setLastUsedAt(LocalDateTime.now());
-                    return token;
-                })
-                .orElseGet(() -> DeviceToken.builder()
-                    .user(user)
-                    .token(request.token())
-                    .deviceName(request.deviceName())
-                    .deviceModel(request.deviceModel())
-                    .active(true)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .lastUsedAt(LocalDateTime.now())
-                    .build());
+        // deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
+        //     .ifPresent(existingToken -> {
+        //         if (existingToken.getUser().getId() != user.getId()) {
+        //             existingToken.setActive(false);
+        //             deviceTokenRepository.save(existingToken);
+        //         }
+        //     });
 
-            return deviceTokenRepository.save(deviceToken);
-        }
+        DeviceToken deviceToken = deviceTokenRepository.findByTokenContaining(request.token().split(":")[0])
+            .map(token -> {
+                token.setUser(user);
+                token.setDeviceName(request.deviceName());
+                token.setDeviceModel(request.deviceModel());
+                token.setActive(true);
+                token.setUpdatedAt(LocalDateTime.now());
+                token.setLastUsedAt(LocalDateTime.now());
+                return token;
+            })
+            .orElseGet(() -> DeviceToken.builder()
+                .user(user)
+                .token(request.token())
+                .deviceName(request.deviceName())
+                .deviceModel(request.deviceModel())
+                .active(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .lastUsedAt(LocalDateTime.now())
+                .build());
+
+        return deviceTokenRepository.save(deviceToken);
     }
 
     @Override
