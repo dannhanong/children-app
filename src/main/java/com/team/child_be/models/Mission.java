@@ -33,12 +33,12 @@ public class Mission {
 
     @NotNull(message = "Phụ huynh không được để trống")
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent_id", referencedColumnName = "id")
+    @JoinColumn(name = "parent_id")
     User parent;
 
     @NotNull(message = "Trẻ em không được để trống")
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "child_id", referencedColumnName = "id")
+    @JoinColumn(name = "child_id")
     User child;
     
     @NotBlank(message = "Tiêu đề không được để trống")
