@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,7 +83,9 @@ public class FCMServiceImpl implements FCMService{
 
     @Override
     public void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException {
-        DeviceToken token = deviceTokenRepository.findTopByUser_IdAndActiveTrueOrderByIdDesc(userId);
+        DeviceToken token = deviceTokenRepository.findByUser_IdAndActiveTrueOrderByIdDesc(
+        userId, PageRequest.of(0, 1)).getContent().stream().findFirst().orElse(null);
+        
         if (token == null) {
             return;
         }
