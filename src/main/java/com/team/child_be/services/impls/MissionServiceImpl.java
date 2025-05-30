@@ -112,6 +112,14 @@ public class MissionServiceImpl implements MissionService{
             throw new RuntimeException("Bạn không có quyền xóa nhiệm vụ này");
         }
 
+        if (mission.getCompletedAt() != null) {
+            User child = mission.getChild();
+            child.setTotalPoints(
+                child.getTotalPoints() == null ? 0.0 : child.getTotalPoints() - mission.getPoints()
+            );
+            userRepository.save(child);
+        }
+
         mission.setDeletedAt(LocalDateTime.now());
         missionRepository.save(mission);
 
