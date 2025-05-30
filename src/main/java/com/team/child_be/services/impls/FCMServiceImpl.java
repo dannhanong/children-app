@@ -3,6 +3,8 @@ package com.team.child_be.services.impls;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,7 +82,8 @@ public class FCMServiceImpl implements FCMService{
 
     @Override
     public void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException {
-        List<DeviceToken> tokens = deviceTokenRepository.findByUser_IdAndActiveTrue(userId);
+        Set<DeviceToken> tokens = deviceTokenRepository.findByUser_IdAndActiveTrue(userId).stream()
+            .collect(Collectors.toSet());
 
         if (tokens.isEmpty()) {
             return;
@@ -151,10 +154,10 @@ public class FCMServiceImpl implements FCMService{
         return deviceTokenRepository.findByUser_IdAndActiveTrue(userId);
     }
 
-    @Override
-    public String sendNotification(String token, String title, String body) throws FirebaseMessagingException {
-        return sendNotification(token, title, body, null);
-    }
+    // @Override
+    // public String sendNotification(String token, String title, String body) throws FirebaseMessagingException {
+    //     return sendNotification(token, title, body, null);
+    // }
 
     @Override
     public ResponseMessage sendSosNotification(String username) throws FirebaseMessagingException {
@@ -174,7 +177,7 @@ public class FCMServiceImpl implements FCMService{
         }
 
         for (DeviceToken deviceToken : tokens) {
-            sendNotification(deviceToken.getToken(), title, body);
+            sendNotification(deviceToken.getToken(), title, body, null);
         }
 
         return new ResponseMessage(200, "Đã gửi thông báo SOS thành công");

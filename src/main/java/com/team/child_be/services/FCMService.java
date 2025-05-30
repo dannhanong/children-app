@@ -9,7 +9,7 @@ import com.team.child_be.models.DeviceToken;
 
 public interface FCMService {
     String sendNotification(String token, String title, String body, String imageUrl) throws FirebaseMessagingException;
-    String sendNotification(String token, String title, String body) throws FirebaseMessagingException;
+    // String sendNotification(String token, String title, String body) throws FirebaseMessagingException;
     void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException;
     DeviceToken registerDeviceToken(String username, DeviceTokenRequest request);
     void deactivateDeviceToken(String username, String token);
