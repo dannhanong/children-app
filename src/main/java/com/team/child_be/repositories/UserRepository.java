@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     User findByUsername(String username);
+    Optional<User> findByUsernameAndDeletedAtIsNull(String username);
     User findByVerificationCode(String verificationCode);
     User findByResetPasswordToken(String resetPasswordToken);
     User findByResetPasswordTokenAndDeletedAtNull(String resetPasswordToken);

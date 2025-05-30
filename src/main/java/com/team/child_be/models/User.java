@@ -3,6 +3,7 @@ package com.team.child_be.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.team.child_be.dtos.enums.ProviderType;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -47,6 +48,7 @@ public class User {
 
     @Email(message = "Tên đăng nhập có định dạng email không hợp lệ")
     @NotBlank(message = "Tên đăng nhập không được để trống")
+    @Column(unique = true, nullable = false)
     String username;
 
     @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")

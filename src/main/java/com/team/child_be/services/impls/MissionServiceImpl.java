@@ -33,7 +33,8 @@ public class MissionServiceImpl implements MissionService{
     @Transactional
     public ResponseMessage createMission(MissionRequest missionRequest, String username) {
         try {
-            User parent = userRepository.findByUsername(username);
+            User parent = userRepository.findByUsernameAndDeletedAtIsNull(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
             User child = userRepository.findById(missionRequest.childId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy trẻ em"));
             missionRepository.save(Mission.builder()
