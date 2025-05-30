@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.team.child_be.models.DeviceToken;
@@ -17,5 +18,7 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> 
     void deleteByToken(String token);
     boolean existsByUser_UsernameAndToken(String username, String token);
     void deleteByUser_Username(String username);
+
+    @Query("SELECT dt FROM DeviceToken dt WHERE dt.user.id = :userId AND dt.active = true ORDER BY dt.id DESC LIMIT 1")
     DeviceToken findFirstByUser_IdAndActiveTrueOrderByIdDesc(Long userId);
 }
