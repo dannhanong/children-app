@@ -30,21 +30,21 @@ public class MissionServiceImpl implements MissionService{
     private FCMService fcmService;
 
     @Override
+    @Transactional
     public ResponseMessage createMission(MissionRequest missionRequest, String username) {
-        User parent = userRepository.findByUsername(username);
-        User child = userRepository.findById(missionRequest.childId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy trẻ em"));
-        missionRepository.save(Mission.builder()
-                .parent(parent)
-                .child(child)
-                .title(missionRequest.title())
-                .description(missionRequest.description())
-                .deadline(missionRequest.deadline())
-                .points(missionRequest.points())
-                .createdAt(LocalDateTime.now())
-                .build());
-
         try {
+            User parent = userRepository.findByUsername(username);
+            User child = userRepository.findById(missionRequest.childId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy trẻ em"));
+            missionRepository.save(Mission.builder()
+                    .parent(parent)
+                    .child(child)
+                    .title(missionRequest.title())
+                    .description(missionRequest.description())
+                    .deadline(missionRequest.deadline())
+                    .points(missionRequest.points())
+                    .createdAt(LocalDateTime.now())
+                    .build());
             fcmService.sendNotificationToUser(child.getId(), "Nhiệm vụ mới", "Bạn có một nhiệm vụ mới từ phụ huynh", "https://firebasestorage.googleapis.com/v0/b/lvkmusic.appspot.com/o/xbn3urb9oc?alt=media&token=b6519c29-eb8b-4d04-aa62-134967c256ea");
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
@@ -57,6 +57,7 @@ public class MissionServiceImpl implements MissionService{
     }
 
     @Override
+    @Transactional
     public ResponseMessage updateMission(Long missionId, MissionRequest missionRequest, String username) {
         User parent = userRepository.findByUsername(username);
         User child = userRepository.findById(missionRequest.childId())
@@ -100,6 +101,7 @@ public class MissionServiceImpl implements MissionService{
     }
 
     @Override
+    @Transactional
     public ResponseMessage deleteMission(Long missionId, String username) {
         User parent = userRepository.findByUsername(username);
         Mission mission = missionRepository.findById(missionId)
