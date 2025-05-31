@@ -144,6 +144,7 @@ public class MissionServiceImpl implements MissionService{
     }
 
     @Override
+    @Transactional
     public ResponseMessage completeMission(Long missionId, String username) {
         User child = userRepository.findByUsername(username);
         Mission mission = missionRepository.findByIdAndChild_UsernameAndDeletedAtNull(missionId, username)
@@ -176,6 +177,7 @@ public class MissionServiceImpl implements MissionService{
     }
 
     @Override
+    @Transactional
     public ResponseMessage confirmMissionCompleted(Long missionId, String username, boolean confirm) {
         User parent = userRepository.findByUsername(username);
         Mission mission = missionRepository.findByIdAndParent_UsernameAndDeletedAtNull(missionId, username)
