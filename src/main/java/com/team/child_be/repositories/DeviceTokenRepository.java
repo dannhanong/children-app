@@ -3,13 +3,11 @@ package com.team.child_be.repositories;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.team.child_be.models.DeviceToken;
+import com.team.child_be.models.User;
 
 @Repository
 public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> {
@@ -21,6 +19,5 @@ public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> 
     boolean existsByUser_UsernameAndToken(String username, String token);
     void deleteByUser_Username(String username);
 
-    @Query("SELECT dt FROM DeviceToken dt WHERE dt.user.id = :userId AND dt.active = true ORDER BY dt.id DESC")
-    Page<DeviceToken> findByUser_IdAndActiveTrueOrderByIdDesc(Long userId, Pageable pageable);
+    DeviceToken findFirstByUserOrderByIdDesc(User user);
 }

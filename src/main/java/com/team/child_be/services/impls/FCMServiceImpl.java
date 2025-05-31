@@ -3,11 +3,8 @@ package com.team.child_be.services.impls;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,8 +80,8 @@ public class FCMServiceImpl implements FCMService{
 
     @Override
     public void sendNotificationToUser(Long userId, String title, String body, String imageUrl) throws FirebaseMessagingException {
-        DeviceToken token = deviceTokenRepository.findByUser_IdAndActiveTrueOrderByIdDesc(
-        userId, PageRequest.of(0, 1)).getContent().stream().findFirst().orElse(null);
+        DeviceToken token = deviceTokenRepository.findFirstByUserOrderByIdDesc(userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId)));
         
         if (token == null) {
             return;
