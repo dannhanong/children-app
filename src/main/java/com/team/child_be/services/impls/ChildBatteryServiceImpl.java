@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.team.child_be.models.ChildBattery;
+import com.team.child_be.models.User;
 import com.team.child_be.repositories.ChildBatteryRepository;
 import com.team.child_be.repositories.UserRepository;
 import com.team.child_be.services.ChildBatteryService;
@@ -21,12 +22,17 @@ public class ChildBatteryServiceImpl implements ChildBatteryService{
     @Override
     @Transactional
     public ChildBattery createChildBattery(String username, ChildBattery childBattery) {
-        if (childBatteryRepository.findByChild(userRepository.findByUsername(username)).isPresent()) {
-            childBatteryRepository.deleteByChild(userRepository.findByUsername(username));
+        User child = userRepository.findByUsername(username);
+        if (childBatteryRepository.findByChild(child).isPresent()) {
+            childBatteryRepository.deleteByChild(child);
         }
-        childBattery.setChild(userRepository.findByUsername(username));
-        childBattery.setTime(LocalDateTime.now());
-        return childBatteryRepository.save(childBattery);
+        if (child.getAccessCode() != null) {
+            childBattery.setChild(child);
+            childBattery.setTime(LocalDateTime.now());
+            return childBatteryRepository.save(childBattery);
+        } else {
+            return null; 
+        }
     }
 
 }
