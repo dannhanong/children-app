@@ -37,6 +37,9 @@ public class MissionServiceImpl implements MissionService{
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
             User child = userRepository.findById(missionRequest.childId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy trẻ em"));
+            if (missionRequest.deadline().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Hạn chót không được nhỏ hơn thời gian hiện tại");
+            }
             missionRepository.save(Mission.builder()
                     .parent(parent)
                     .child(child)
@@ -104,29 +107,50 @@ public class MissionServiceImpl implements MissionService{
     @Override
     @Transactional
     public ResponseMessage deleteMission(Long missionId, String username) {
-        User parent = userRepository.findByUsername(username);
-        Mission mission = missionRepository.findById(missionId)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
-        
-        if (parent.getId() != mission.getParent().getId()) {
-            throw new RuntimeException("Bạn không có quyền xóa nhiệm vụ này");
+        try {
+            // Tìm người dùng với username và kiểm tra null
+            User parent = userRepository.findByUsernameAndDeletedAtIsNull(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+            
+            // Tìm nhiệm vụ
+            Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ"));
+            
+            // Kiểm tra quyền
+            if (!parent.getId().equals(mission.getParent().getId())) {
+                throw new RuntimeException("Bạn không có quyền xóa nhiệm vụ này");
+            }
+
+            // Xử lý nhiệm vụ đã hoàn thành - trừ điểm
+            if (mission.getCompletedAt() != null && mission.isConfirm()) {
+                User child = mission.getChild();
+                Double missionPoints = mission.getPoints() != null ? mission.getPoints() : 0.0;
+                Double currentPoints = child.getTotalPoints() != null ? child.getTotalPoints() : 0.0;
+                
+                // Đảm bảo điểm không âm
+                Double newPoints = Math.max(0.0, currentPoints - missionPoints);
+                child.setTotalPoints(newPoints);
+                
+                userRepository.save(child);
+            }
+
+            // Đánh dấu nhiệm vụ đã xóa
+            mission.setDeletedAt(LocalDateTime.now());
+            missionRepository.save(mission);
+
+            return ResponseMessage.builder()
+                    .status(200)
+                    .message("Xóa nhiệm vụ thành công")
+                    .build();
+        } catch (Exception e) {
+            // Log exception
+            e.printStackTrace();
+            
+            return ResponseMessage.builder()
+                    .status(400)
+                    .message("Lỗi xóa nhiệm vụ: " + e.getMessage())
+                    .build();
         }
-
-        if (mission.getCompletedAt() != null) {
-            User child = mission.getChild();
-            child.setTotalPoints(
-                child.getTotalPoints() == null ? 0.0 : child.getTotalPoints() - mission.getPoints()
-            );
-            userRepository.save(child);
-        }
-
-        mission.setDeletedAt(LocalDateTime.now());
-        missionRepository.save(mission);
-
-        return ResponseMessage.builder()
-                .status(200)
-                .message("Xóa nhiệm vụ thành công")
-                .build();
     }
 
     @Override

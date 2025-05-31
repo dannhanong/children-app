@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -48,7 +47,6 @@ public class Mission {
     String description;
 
     @NotNull(message = "Hạn chót không được để trống")
-    @Future(message = "Hạn chót phải là thời gian trong tương lai")
     LocalDateTime deadline;
     
     Double points;
