@@ -49,7 +49,7 @@ public class MissionServiceImpl implements MissionService{
                     .points(missionRequest.points())
                     .createdAt(LocalDateTime.now())
                     .build());
-            fcmService.sendNotificationToUser(child.getId(), "Nhiệm vụ mới", "Bạn có một nhiệm vụ mới từ phụ huynh", "https://firebasestorage.googleapis.com/v0/b/lvkmusic.appspot.com/o/xbn3urb9oc?alt=media&token=b6519c29-eb8b-4d04-aa62-134967c256ea");
+            fcmService.sendNotificationToUser(child.getId(), "Nhiệm vụ mới", "Bạn có một nhiệm vụ mới từ phụ huynh", "https://navigates.vn/wp-content/uploads/2023/06/logo-hoc-vien-ky-thuat-mat-ma.jpg");
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
@@ -189,7 +189,7 @@ public class MissionServiceImpl implements MissionService{
             fcmService.sendNotificationToUser(mission.getParent().getId(), 
                 "Nhiệm vụ đã hoàn thành", 
                     child.getName() + " đã hoàn thành nhiệm vụ, hãy kiểm tra và xác nhận", 
-                    "https://firebasestorage.googleapis.com/v0/b/lvkmusic.appspot.com/o/xbn3urb9oc?alt=media&token=b6519c29-eb8b-4d04-aa62-134967c256ea");
+                    "https://navigates.vn/wp-content/uploads/2023/06/logo-hoc-vien-ky-thuat-mat-ma.jpg");
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
@@ -238,7 +238,7 @@ public class MissionServiceImpl implements MissionService{
             fcmService.sendNotificationToUser(mission.getChild().getId(), 
                 "Nhiệm vụ đã được xác nhận", 
                     parent.getName() + " đã xác nhận nhiệm vụ của bạn", 
-                    "https://firebasestorage.googleapis.com/v0/b/lvkmusic.appspot.com/o/xbn3urb9oc?alt=media&token=b6519c29-eb8b-4d04-aa62-134967c256ea");
+                    "https://navigates.vn/wp-content/uploads/2023/06/logo-hoc-vien-ky-thuat-mat-ma.jpg");
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
